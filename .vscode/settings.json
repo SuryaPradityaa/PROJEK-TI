@@ -1,0 +1,9 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "pip": true,
+        "/^cd \"c:\\\\PROJEK TI\"; python -c \"from pathlib import Path; text=Path\\('app\\.py'\\)\\.read_text\\(encoding='utf-8'\\)\\.splitlines\\(\\); import sys; \\[print\\(i\\+1, repr\\(text\\[i\\]\\)\\) for i in range\\(55,75\\)\\]\"$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}

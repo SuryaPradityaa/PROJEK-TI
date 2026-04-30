@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BaliGuide — Profil Saya</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- Bootstrap lokal -->
+    <link rel="stylesheet" href="/static/plugins/bootstrap/css/bootstrap.min.css">
+    <!-- Font Awesome lokal -->
+    <link rel="stylesheet" href="/static/plugins/fontawesome-free/css/all.min.css">
+    <!-- Styles dashboard yang sama -->
+    <link rel="stylesheet" href="/static/css/styles.css">
+
+    <style>
+        /* ===== PROFILE PAGE EXTRA STYLES ===== */
+        .profile-hero {
+            background: linear-gradient(135deg, var(--hijau-tua) 0%, var(--hijau-mid) 60%, var(--hijau-muda) 100%);
+            padding: 48px 36px 80px;
+            position: relative;
+            overflow: hidden;
+        }
+        .profile-hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--emas), var(--hijau-muda), var(--emas));
+        }
+        .profile-hero::after {
+            content: '🌴';
+            position: absolute;
+            right: -10px; top: -20px;
+            font-size: 180px;
+            opacity: 0.05;
+            line-height: 1;
+        }
+        .profile-hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: #fff;
+            margin: 0;
+        }
+        .profile-hero-sub {
+            color: rgba(255,255,255,0.55);
+            font-size: 13px;
+            margin-top: 4px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        /* Avatar section */
+        .profile-avatar-wrap {
+            position: relative;
+            display: inline-block;
+            margin-top: 28px;
+        }
+        .profile-avatar {
+            width: 108px;
+            height: 108px;
+            border-radius: 50%;
+            border: 4px solid var(--emas);
+            background: linear-gradient(135deg, var(--emas), var(--hijau-muda));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 44px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+        }
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .avatar-edit-btn {
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            width: 30px;
+            height: 30px;
+            background: var(--emas);
+            border: 2px solid #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+            color: #fff;
+            transition: transform 0.2s;
+        }
+        .avatar-edit-btn:hover { transform: scale(1.1); }
+
+        /* Badge status */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(201,168,76,0.18);
+            border: 1px solid rgba(201,168,76,0.4);
+            color: var(--emas-muda);
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 10px;
+            letter-spacing: 0.5px;
+        }
+
+        /* Card container utama */
+        .profile-card-area {
+            max-width: 740px;
+            margin: -44px auto 40px;
+            padding: 0 24px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .profile-card {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.10);
+            overflow: hidden;
+        }
+
+        /* Stats bar */
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .stat-item {
+            padding: 20px 16px;
+            text-align: center;
+            border-right: 1px solid #f0f0f0;
+        }
+        .stat-item:last-child { border-right: none; }
+        .stat-num {
+            font-family: 'Playfair Display', serif;
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--hijau-tua);
+        }
+        .stat-lbl {
+            font-size: 11px;
+            color: var(--teks-abu);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 2px;
+        }
+
+        /* Form section */
+        .profile-section {
+            padding: 28px 32px;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        .profile-section:last-child { border-bottom: none; }
+        .section-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--teks-abu);
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-label i { color: var(--emas); font-size: 13px; }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .form-row.full { grid-template-columns: 1fr; }
+
+        .field-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .field-wrap label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #555;
+        }
+        .field-wrap .readonly-val {
+            padding: 11px 14px;
+            background: var(--krem);
+            border: 1.5px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 14px;
+            color: var(--teks-gelap);
+            font-weight: 500;
+        }
+        .field-icon { position: relative; }
+        .field-icon i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--teks-abu);
+            font-size: 13px;
+        }
+        .field-icon input,
+        .field-icon select {
+            width: 100%;
+            padding: 11px 14px 11px 38px;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 10px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            background: #fff;
+            color: var(--teks-gelap);
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        .field-icon input:focus,
+        .field-icon select:focus {
+            border-color: var(--hijau-muda);
+            box-shadow: 0 0 0 3px rgba(82,183,136,0.12);
+        }
+
+        /* Jenis kelamin pills */
+        .gender-group {
+            display: flex;
+            gap: 10px;
+        }
+        .gender-pill {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            background: #fff;
+            cursor: pointer;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            color: #888;
+            transition: all 0.2s;
+        }
+        .gender-pill:hover { border-color: var(--hijau-muda); color: var(--hijau-mid); }
+        .gender-pill.selected {
+            border-color: var(--hijau-mid);
+            background: rgba(45,106,79,0.07);
+            color: var(--hijau-mid);
+        }
+        .gender-pill i { margin-right: 5px; }
+
+        /* Save button */
+        .btn-save {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--hijau-mid), var(--hijau-muda));
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.3px;
+        }
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(45,106,79,0.3);
+        }
+        .btn-save:active { transform: translateY(0); }
+
+        /* Toast */
+        #toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a4a3a;
+            color: #fff;
+            padding: 13px 28px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+
+        /* Avatar upload hidden */
+        #input-foto { display: none; }
+
+        /* Topbar back button */
+        .btn-back {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 18px;
+            background: var(--krem);
+            color: var(--hijau-tua);
+            border: 1.5px solid #e0d9cc;
+            border-radius: 10px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .btn-back:hover {
+            background: var(--krem-dark);
+            border-color: var(--emas);
+            color: var(--hijau-tua);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .profile-card-area { margin: -32px 12px 32px; padding: 0; }
+            .profile-section { padding: 22px 20px; }
+            .form-row { grid-template-columns: 1fr; }
+            .profile-stats { grid-template-columns: repeat(3, 1fr); }
+            .stat-num { font-size: 20px; }
+        }
+    </style>
+</head>
+
+<body>
+<div class="app-wrapper">
+
+    <!-- ===================== SIDEBAR ===================== -->
+    <aside class="sidebar">
+        <div class="sidebar::before"></div>
+
+        <div class="sidebar-brand">
+            <div class="brand-logo">🌴 Bali<span>Guide</span></div>
+            <div class="brand-sub">Wisata Nusantara</div>
+        </div>
+
+        <div class="sidebar-nav" style="margin-top: 16px;">
+            <div class="sidebar-label">Menu</div>
+
+            <a class="nav-item" href="/ui">
+                <i class="fas fa-compass"></i>
+                Jelajahi Wisata
+            </a>
+            <a class="nav-item" href="/ui" onclick="sessionStorage.setItem('goto','favorit')">
+                <i class="fas fa-heart"></i>
+                Favorit
+            </a>
+            <a class="nav-item" href="/ui" onclick="sessionStorage.setItem('goto','riwayat')">
+                <i class="fas fa-history"></i>
+                Riwayat Kunjungan
+            </a>
+            <a class="nav-item active" href="/profile-page">
+                <i class="fas fa-user-circle"></i>
+                Profil Saya
+            </a>
+        </div>
+
+        <div class="sidebar-footer" id="sidebar-profile-btn" style="cursor:default;">
+            <div class="avatar" id="sidebar-avatar" style="overflow:hidden;">🧑</div>
+            <div class="user-info">
+                <div class="user-name" id="sidebar-username">Memuat...</div>
+                <div class="user-role">🌴 Wisatawan</div>
+            </div>
+            <button class="btn-logout" onclick="doLogout()" title="Logout">
+                <i class="fas fa-sign-out-alt"></i>
+            </button>
+        </div>
+    </aside>
+
+    <!-- ===================== MAIN ===================== -->
+    <div class="main-content">
+
+        <!-- TOPBAR -->
+        <div class="topbar">
+            <a class="btn-back" href="/ui">
+                <i class="fas fa-arrow-left"></i>
+                Kembali ke Dashboard
+            </a>
+            <div style="flex:1;"></div>
+            <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--hijau-tua);">
+                Profil Saya
+            </div>
+        </div>
+
+        <!-- PAGE BODY -->
+        <div class="page-body" style="padding:0;">
+
+            <!-- HERO PROFIL -->
+            <div class="profile-hero">
+                <p class="profile-hero-sub">Akun Wisatawan</p>
+                <h1 class="profile-hero-title" id="hero-nama">...</h1>
+
+                <div class="profile-avatar-wrap">
+                    <div class="profile-avatar" id="profile-avatar-el">🧑</div>
+                    <div class="avatar-edit-btn" onclick="document.getElementById('input-foto').click()" title="Ganti foto profil">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                    <input type="file" id="input-foto" accept="image/*" onchange="handleFotoChange(event)">
+                </div>
+
+                <div style="margin-top:12px;">
+                    <span class="status-badge">
+                        <i class="fas fa-map-marked-alt"></i>
+                        Wisatawan Aktif
+                    </span>
+                </div>
+            </div>
+
+            <!-- CARD AREA -->
+            <div class="profile-card-area">
+
+                <!-- STATS -->
+                <div class="profile-card" style="margin-bottom:20px;">
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <div class="stat-num" id="stat-favorit">—</div>
+                            <div class="stat-lbl">Favorit</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-num" id="stat-riwayat">—</div>
+                            <div class="stat-lbl">Kunjungan</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-num">🌴</div>
+                            <div class="stat-lbl">Status</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FORM CARD -->
+                <div class="profile-card">
+
+                    <!-- INFORMASI AKUN (readonly) -->
+                    <div class="profile-section">
+                        <div class="section-label">
+                            <i class="fas fa-id-card"></i>
+                            Informasi Akun
+                        </div>
+                        <div class="form-row">
+                            <div class="field-wrap">
+                                <label>Username</label>
+                                <div class="readonly-val" id="field-nama">—</div>
+                            </div>
+                            <div class="field-wrap">
+                                <label>Email (Gmail)</label>
+                                <div class="readonly-val" id="field-gmail">—</div>
+                            </div>
+                        </div>
+                        <div class="form-row full" style="margin-top:14px;">
+                            <div class="field-wrap">
+                                <label>Peran / Role</label>
+                                <div class="readonly-val">
+                                    <i class="fas fa-star" style="color:var(--emas);margin-right:6px;"></i>
+                                    Wisatawan
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DATA PRIBADI (editable) -->
+                    <div class="profile-section">
+                        <div class="section-label">
+                            <i class="fas fa-user-edit"></i>
+                            Data Pribadi
+                        </div>
+
+                        <!-- Jenis Kelamin -->
+                        <div class="field-wrap" style="margin-bottom:18px;">
+                            <label>Jenis Kelamin</label>
+                            <div class="gender-group">
+                                <div class="gender-pill" id="pill-pria" onclick="pilihGender('Pria')">
+                                    <i class="fas fa-mars"></i> Pria
+                                </div>
+                                <div class="gender-pill" id="pill-wanita" onclick="pilihGender('Wanita')">
+                                    <i class="fas fa-venus"></i> Wanita
+                                </div>
+                                <div class="gender-pill" id="pill-lainnya" onclick="pilihGender('Lainnya')">
+                                    <i class="fas fa-genderless"></i> Lainnya
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tanggal Lahir -->
+                        <div class="form-row full">
+                            <div class="field-wrap">
+                                <label>Tanggal Lahir</label>
+                                <div class="field-icon">
+                                    <i class="fas fa-birthday-cake"></i>
+                                    <input type="date" id="input-tgl-lahir" placeholder="Tanggal lahir">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FOTO PREVIEW (jika baru dipilih) -->
+                    <div class="profile-section" id="foto-preview-section" style="display:none;">
+                        <div class="section-label">
+                            <i class="fas fa-image"></i>
+                            Foto Profil Baru
+                        </div>
+                        <div style="display:flex;align-items:center;gap:16px;">
+                            <img id="foto-preview" src="" style="width:70px;height:70px;border-radius:50%;object-fit:cover;border:3px solid var(--emas);">
+                            <div>
+                                <div style="font-size:13px;font-weight:600;color:var(--teks-gelap);">Foto baru dipilih</div>
+                                <div style="font-size:12px;color:var(--teks-abu);margin-top:2px;">Klik Simpan untuk menggunakan foto ini</div>
+                                <button onclick="batalFoto()" style="background:none;border:none;color:#e05656;font-size:12px;cursor:pointer;padding:0;margin-top:4px;"><i class="fas fa-times"></i> Batalkan</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SAVE -->
+                    <div class="profile-section">
+                        <button class="btn-save" id="btn-save" onclick="simpanProfil()">
+                            <i class="fas fa-save"></i>
+                            Simpan Perubahan
+                        </button>
+                    </div>
+
+                </div><!-- /profile-card -->
+
+            </div><!-- /profile-card-area -->
+
+        </div><!-- /page-body -->
+    </div><!-- /main-content -->
+</div><!-- /app-wrapper -->
+
+<div id="toast"></div>
+
+<script src="/static/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script>
+// ============================
+// STATE
+// ============================
+let userData = {};
+let selectedGender = null;
+let newFotoDataURL = null;
+
+// ============================
+// INIT
+// ============================
+async function init() {
+    const res  = await fetch('/me');
+    const data = await res.json();
+    if (!data || !data.id) {
+        window.location.href = '/login-page';
+        return;
+    }
+    userData = data;
+
+    // Hero & sidebar
+    document.getElementById('hero-nama').textContent    = data.nama || '—';
+    document.getElementById('sidebar-username').textContent = data.nama || '—';
+
+    // Readonly fields
+    document.getElementById('field-nama').textContent  = data.nama  || '—';
+    document.getElementById('field-gmail').textContent = data.gmail || '—';
+
+    // Avatar
+    if (data.foto_profil) {
+        setAvatar(data.foto_profil);
+    }
+
+    // Editable fields
+    if (data.tanggal_lahir) {
+        document.getElementById('input-tgl-lahir').value = data.tanggal_lahir;
+    }
+    if (data.jenis_kelamin) {
+        pilihGender(data.jenis_kelamin);
+    }
+
+    // Load stats
+    loadStats();
+}
+
+async function loadStats() {
+    try {
+        const [resSuka, resRiwayat] = await Promise.all([
+            fetch('/suka'),
+            fetch('/riwayat')
+        ]);
+        const suka    = await resSuka.json();
+        const riwayat = await resRiwayat.json();
+        document.getElementById('stat-favorit').textContent  = Array.isArray(suka)    ? suka.length    : 0;
+        document.getElementById('stat-riwayat').textContent  = Array.isArray(riwayat) ? riwayat.length : 0;
+    } catch(e) {
+        document.getElementById('stat-favorit').textContent  = '—';
+        document.getElementById('stat-riwayat').textContent  = '—';
+    }
+}
+
+// ============================
+// AVATAR
+// ============================
+function setAvatar(src) {
+    const el = document.getElementById('profile-avatar-el');
+    el.innerHTML = `<img src="${src}" alt="Avatar">`;
+    document.getElementById('sidebar-avatar').innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+}
+
+function handleFotoChange(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Max 2MB
+    if (file.size > 2 * 1024 * 1024) {
+        showToast('⚠️ Ukuran foto maksimal 2MB');
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = e => {
+        newFotoDataURL = e.target.result;
+        document.getElementById('foto-preview').src = newFotoDataURL;
+        document.getElementById('foto-preview-section').style.display = '';
+        // Preview di avatar
+        setAvatar(newFotoDataURL);
+    };
+    reader.readAsDataURL(file);
+}
+
+function batalFoto() {
+    newFotoDataURL = null;
+    document.getElementById('foto-preview-section').style.display = 'none';
+    document.getElementById('input-foto').value = '';
+    // Kembalikan avatar lama
+    if (userData.foto_profil) {
+        setAvatar(userData.foto_profil);
+    } else {
+        document.getElementById('profile-avatar-el').innerHTML = '🧑';
+        document.getElementById('sidebar-avatar').innerHTML = '🧑';
+    }
+}
+
+// ============================
+// GENDER
+// ============================
+function pilihGender(val) {
+    selectedGender = val;
+    ['Pria','Wanita','Lainnya'].forEach(g => {
+        const pill = document.getElementById('pill-' + g.toLowerCase());
+        if (pill) pill.classList.toggle('selected', g === val);
+    });
+}
+
+// ============================
+// SAVE
+// ============================
+async function simpanProfil() {
+    const btn = document.getElementById('btn-save');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+
+    const payload = {
+        tanggal_lahir : document.getElementById('input-tgl-lahir').value || null,
+        jenis_kelamin : selectedGender,
+        foto_profil   : newFotoDataURL || userData.foto_profil || null,
+    };
+
+    try {
+        const res  = await fetch('/profile', {
+            method  : 'PUT',
+            headers : { 'Content-Type': 'application/json' },
+            body    : JSON.stringify(payload)
+        });
+        const data = await res.json();
+        showToast('✅ ' + data.message);
+
+        // Update local state
+        userData.jenis_kelamin  = payload.jenis_kelamin;
+        userData.tanggal_lahir  = payload.tanggal_lahir;
+        userData.foto_profil    = payload.foto_profil;
+        if (newFotoDataURL) {
+            newFotoDataURL = null;
+            document.getElementById('foto-preview-section').style.display = 'none';
+        }
+    } catch(e) {
+        showToast('❌ Gagal menyimpan, coba lagi');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-save"></i> Simpan Perubahan';
+    }
+}
+
+// ============================
+// LOGOUT
+// ============================
+async function doLogout() {
+    await fetch('/logout');
+    window.location.href = '/login-page';
+}
+
+// ============================
+// TOAST
+// ============================
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.opacity = '1';
+    setTimeout(() => { t.style.opacity = '0'; }, 2800);
+}
+
+// ============================
+// BOOT
+// ============================
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

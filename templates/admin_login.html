@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Login - Wisata Bali</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/login.css">
+</head>
+<body>
+<div class="wrapper">
+    <div class="logo">
+        <h1>🌴 Admin Wisata Bali</h1>
+        <p>Masuk sebagai admin untuk mengelola data wisata.</p>
+    </div>
+
+    <div class="card">
+        <div class="form-panel active" id="panel-admin-login">
+            <h2>Login Admin</h2>
+            <p class="sub">Gunakan akun admin untuk mengakses panel admin.</p>
+
+            <div class="alert" id="alert-admin"></div>
+
+            <div class="field">
+                <label>Nama Admin</label>
+                <input type="text" id="admin-nama" placeholder="Nama admin">
+            </div>
+            <div class="field">
+                <label>Password</label>
+                <input type="password" id="admin-password" placeholder="••••••••">
+            </div>
+
+            <button class="btn-submit" id="btn-admin-login" onclick="doAdminLogin()">Masuk sebagai Admin</button>
+            <p class="footer-note">Bukan admin? <a href="/login-page">Kembali ke login umum</a></p>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showAlert(msg, isError = false) {
+        const el = document.getElementById('alert-admin');
+        el.textContent = msg;
+        el.className = 'alert show ' + (isError ? 'error' : 'success');
+    }
+
+    async function doAdminLogin() {
+        const nama = document.getElementById('admin-nama').value.trim();
+        const password = document.getElementById('admin-password').value;
+
+        if (!nama || !password) {
+            showAlert('Nama dan password wajib diisi.', true);
+            return;
+        }
+
+        const btn = document.getElementById('btn-admin-login');
+        btn.textContent = 'Memproses...';
+        btn.disabled = true;
+
+        try {
+            const res = await fetch('/admin/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nama, password })
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+                showAlert('✅ ' + data.message);
+                setTimeout(() => window.location.href = '/admin-page', 1000);
+            } else {
+                showAlert('❌ ' + data.message, true);
+            }
+        } catch (err) {
+            showAlert('❌ Gagal terhubung ke server.', true);
+        } finally {
+            btn.textContent = 'Masuk sebagai Admin';
+            btn.disabled = false;
+        }
+    }
+</script>
+</body>
+</html>

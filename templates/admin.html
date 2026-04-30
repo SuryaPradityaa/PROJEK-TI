@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Wisata Bali</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/plugins/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <style>
+        body { font-family: 'DM Sans', sans-serif; background: var(--krem); color: var(--teks-gelap); }
+        .admin-container { max-width:1200px; margin:32px auto; padding:0 16px; }
+        .page-title { margin-bottom:24px; }
+        .card { border:none; border-radius: var(--radius-lg); box-shadow: var(--shadow-md); background: #fff; }
+        .card-header { background: var(--hijau-tua); color: #fff; border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
+        .form-control, .form-select { 
+            border-radius:10px; 
+            border: 2px solid var(--krem-dark); 
+            padding: 12px 16px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--emas);
+            box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.1);
+            outline: none;
+        }
+        .form-label {
+            color: var(--hijau-tua);
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        .form-control::placeholder {
+            color: var(--teks-abu);
+            opacity: 0.7;
+        }
+        .input-group .form-control {
+            border-radius: 0;
+        }
+        .input-group .form-control:first-child {
+            border-top-left-radius: 10px;
+            border-bottom-left-radius: 10px;
+        }
+        .input-group .form-control:last-child {
+            border-top-right-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+        .table thead th { border-bottom:2px solid var(--krem-dark); background: var(--krem); color: var(--teks-gelap); }
+        .badge-role { font-size:0.8rem; background: var(--emas); color: var(--hijau-tua); }
+        .btn-primary { 
+            background: var(--hijau-mid); 
+            border-color: var(--hijau-mid); 
+            color: #fff; 
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover { 
+            background: var(--hijau-tua); 
+            border-color: var(--hijau-tua);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+        .btn-outline-secondary { 
+            border-color: var(--teks-abu); 
+            color: var(--teks-abu);
+            padding: 10px 24px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .btn-outline-secondary:hover { 
+            background: var(--teks-abu); 
+            color: #fff;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+        .btn-danger { 
+            background: #e05656; 
+            border-color: #e05656; 
+            color: #fff;
+            padding: 10px 24px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .btn-danger:hover { 
+            background: #c0392b; 
+            border-color: #c0392b;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+        .message-box { 
+            min-height:40px; 
+            margin-bottom:16px; 
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        .text-muted { color: var(--teks-abu); }
+        h1, h2, h3, h4 { color: var(--hijau-tua); }
+        .row.g-3 > div {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="admin-container">
+    <div class="d-flex justify-content-between align-items-center page-title">
+        <div>
+            <h1 class="h2">Panel Admin Wisata Bali</h1>
+            <p class="text-muted">Tambah, ubah, dan hapus data wisata sesuai DFD.</p>
+        </div>
+        <div>
+            <a href="/ui" class="btn btn-outline-secondary me-2"><i class="fas fa-user"></i> Kembali ke User</a>
+            <button class="btn btn-danger" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+    </div>
+
+    <div class="card p-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="m-0">Form Data Wisata</h4>
+            <span class="badge bg-success badge-role">Admin</span>
+        </div>
+
+        <div id="message" class="message-box"></div>
+        <form id="wisata-form" onsubmit="return submitWisata()">
+            <input type="hidden" id="wisata-id">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Nama Tempat</label>
+                    <input type="text" id="nama_tempat" class="form-control" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Kategori</label>
+                    <input type="text" id="kategori" class="form-control" placeholder="Pantai, Alam, Budaya">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Kabupaten</label>
+                    <input type="text" id="kabupaten" class="form-control" placeholder="Badung, Ubud...">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Rating</label>
+                    <input type="number" min="0" max="5" step="0.1" id="rating" class="form-control" placeholder="4.5">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Harga Tiket WNI</label>
+                    <input type="text" id="harga_tiket_wni" class="form-control" placeholder="5000">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Harga Tiket WNA</label>
+                    <input type="text" id="harga_tiket_wna" class="form-control" placeholder="10000">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Jam Buka</label>
+                    <input type="text" id="jam_buka" class="form-control" placeholder="06.00-18.00">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Latitude, Longitude</label>
+                    <div class="input-group">
+                        <input type="number" step="0.000001" id="latitude" class="form-control" placeholder="-8.65">
+                        <input type="number" step="0.000001" id="longitude" class="form-control" placeholder="115.22">
+                    </div>
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Aktivitas</label>
+                    <input type="text" id="aktivitas" class="form-control" placeholder="Bersantai, berfoto, snorkeling...">
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Deskripsi</label>
+                    <textarea id="deskripsi" class="form-control" rows="3" placeholder="Deskripsi tempat wisata..."></textarea>
+                </div>
+            </div>
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary" id="submit-button">Simpan Wisata</button>
+                <button type="button" class="btn btn-outline-secondary" onclick="resetForm()">Reset</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="card p-4">
+        <h4 class="mb-3">Daftar Data Wisata</h4>
+        <div class="table-responsive">
+            <table class="table table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nama Tempat</th>
+                        <th>Kategori</th>
+                        <th>Kabupaten</th>
+                        <th>Rating</th>
+                        <th>Lokasi</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="wisata-table-body"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    const messageEl = document.getElementById('message');
+    const form = document.getElementById('wisata-form');
+    const submitButton = document.getElementById('submit-button');
+
+    window.addEventListener('DOMContentLoaded', () => {
+        loadWisata();
+    });
+
+    function showMessage(text, isError = false) {
+        messageEl.textContent = text;
+        messageEl.className = isError ? 'text-danger' : 'text-success';
+    }
+
+    function resetForm() {
+        form.reset();
+        document.getElementById('wisata-id').value = '';
+        submitButton.textContent = 'Simpan Wisata';
+        showMessage('Form dikosongkan.');
+    }
+
+    async function loadWisata() {
+        try {
+            const res = await fetch('/admin/wisata');
+            if (!res.ok) throw new Error('Gagal memuat data.');
+            const data = await res.json();
+            const tbody = document.getElementById('wisata-table-body');
+            tbody.innerHTML = data.map(item => `
+                <tr>
+                    <td>${item.id}</td>
+                    <td>${item.nama_tempat}</td>
+                    <td>${item.kategori || '-'}</td>
+                    <td>${item.kabupaten || '-'}</td>
+                    <td>${item.rating || '-'}</td>
+                    <td>${item.latitude || '-'}, ${item.longitude || '-'}</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning me-1" onclick="populateForm(${item.id})"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteWisata(${item.id})"><i class="fas fa-trash-alt"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        } catch (err) {
+            showMessage(err.message || 'Terjadi kesalahan saat memuat data.', true);
+        }
+    }
+
+    async function submitWisata() {
+        const wisataId = document.getElementById('wisata-id').value;
+        const payload = {
+            nama_tempat: document.getElementById('nama_tempat').value.trim(),
+            kategori: document.getElementById('kategori').value.trim(),
+            kabupaten: document.getElementById('kabupaten').value.trim(),
+            deskripsi: document.getElementById('deskripsi').value.trim(),
+            rating: document.getElementById('rating').value,
+            harga_tiket_wni: document.getElementById('harga_tiket_wni').value.trim(),
+            harga_tiket_wna: document.getElementById('harga_tiket_wna').value.trim(),
+            jam_buka: document.getElementById('jam_buka').value.trim(),
+            aktivitas: document.getElementById('aktivitas').value.trim(),
+            latitude: document.getElementById('latitude').value,
+            longitude: document.getElementById('longitude').value,
+        };
+
+        const url = wisataId ? `/admin/wisata/${wisataId}` : '/admin/wisata';
+        const method = wisataId ? 'PUT' : 'POST';
+
+        try {
+            submitButton.disabled = true;
+            submitButton.textContent = wisataId ? 'Memperbarui...' : 'Menyimpan...';
+            const res = await fetch(url, {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const result = await res.json();
+            if (!res.ok) throw new Error(result.message || 'Gagal menyimpan data.');
+            showMessage(result.message);
+            resetForm();
+            loadWisata();
+        } catch (err) {
+            showMessage(err.message || 'Terjadi kesalahan.', true);
+        } finally {
+            submitButton.disabled = false;
+            submitButton.textContent = 'Simpan Wisata';
+        }
+        return false;
+    }
+
+    async function populateForm(id) {
+        try {
+            const res = await fetch('/admin/wisata');
+            if (!res.ok) throw new Error('Gagal memuat data.');
+            const data = await res.json();
+            const item = data.find(i => i.id === id);
+            if (!item) throw new Error('Data tidak ditemukan.');
+
+            document.getElementById('wisata-id').value = item.id;
+            document.getElementById('nama_tempat').value = item.nama_tempat || '';
+            document.getElementById('kategori').value = item.kategori || '';
+            document.getElementById('kabupaten').value = item.kabupaten || '';
+            document.getElementById('deskripsi').value = item.deskripsi || '';
+            document.getElementById('rating').value = item.rating || '';
+            document.getElementById('harga_tiket_wni').value = item.harga_tiket_wni || '';
+            document.getElementById('harga_tiket_wna').value = item.harga_tiket_wna || '';
+            document.getElementById('jam_buka').value = item.jam_buka || '';
+            document.getElementById('aktivitas').value = item.aktivitas || '';
+            document.getElementById('latitude').value = item.latitude || '';
+            document.getElementById('longitude').value = item.longitude || '';
+            submitButton.textContent = 'Perbarui Wisata';
+            showMessage('Form diisi untuk update data. Klik Reset untuk membuat baru.');
+        } catch (err) {
+            showMessage(err.message || 'Terjadi kesalahan.', true);
+        }
+    }
+
+    async function deleteWisata(id) {
+        if (!confirm('Hapus data wisata ini?')) return;
+        try {
+            const res = await fetch(`/admin/wisata/${id}`, { method: 'DELETE' });
+            const result = await res.json();
+            if (!res.ok) throw new Error(result.message || 'Gagal menghapus.');
+            showMessage(result.message);
+            loadWisata();
+        } catch (err) {
+            showMessage(err.message || 'Terjadi kesalahan.', true);
+        }
+    }
+
+    function doLogout() {
+        fetch('/logout').then(() => window.location.href = '/login-page');
+    }
+</script>
+</body>
+</html>
