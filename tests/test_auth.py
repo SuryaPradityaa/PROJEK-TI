@@ -13,7 +13,9 @@ def test_register_login_and_ui_success():
     gmail = f"{nama}@example.com"
     password = "rahasia123"
 
-    register_res = client.post("/register", json={"nama": nama, "gmail": gmail, "password": password})
+    register_res = client.post(
+        "/register", json={"nama": nama, "gmail": gmail, "password": password}
+    )
     assert register_res.status_code == 200
     assert register_res.get_json()["message"] == "Register berhasil"
 
@@ -31,10 +33,15 @@ def test_register_duplicate_name_rejected():
     gmail = f"{nama}@example.com"
     password = "rahasia123"
 
-    first = client.post("/register", json={"nama": nama, "gmail": gmail, "password": password})
+    first = client.post(
+        "/register", json={"nama": nama, "gmail": gmail, "password": password}
+    )
     assert first.status_code == 200
 
-    duplicate = client.post("/register", json={"nama": nama, "gmail": f"other_{gmail}", "password": password})
+    duplicate = client.post(
+        "/register",
+        json={"nama": nama, "gmail": f"other_{gmail}", "password": password},
+    )
     assert duplicate.status_code == 400
     assert duplicate.get_json()["message"] == "Nama sudah digunakan"
 
@@ -45,7 +52,9 @@ def test_login_wrong_password_rejected():
     gmail = f"{nama}@example.com"
     password = "rahasia123"
 
-    register_res = client.post("/register", json={"nama": nama, "gmail": gmail, "password": password})
+    register_res = client.post(
+        "/register", json={"nama": nama, "gmail": gmail, "password": password}
+    )
     assert register_res.status_code == 200
 
     wrong_login = client.post("/login", json={"nama": nama, "password": "salah123"})

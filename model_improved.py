@@ -35,26 +35,28 @@ synonyms = {
     "terbaik": ["terpopuler", "terkenal", "paling bagus", "paling recommended"],
 }
 
+
 def preprocess_text(text):
     """Preprocessing text: lowercase, stemming, remove special chars"""
     # Lowercase
     text = text.lower()
-    
+
     # Expand synonyms
     for key, values in synonyms.items():
         for syn in values:
             if syn in text:
                 text = text.replace(syn, key)
-    
+
     # Remove special characters tapi jaga spasi
-    text = re.sub(r'[^a-zA-Z0-9\s]', '', text)
-    
+    text = re.sub(r"[^a-zA-Z0-9\s]", "", text)
+
     # Stemming untuk setiap kata
     words = text.split()
     words = [stemmer.stem(word) for word in words]
-    text = ' '.join(words)
-    
+    text = " ".join(words)
+
     return text
+
 
 # =========================
 # EXPANDED TRAINING DATA
@@ -81,7 +83,6 @@ training_data = [
     ("pantai untuk keluarga", "pantai"),
     ("pantai sepi dan tenang", "pantai"),
     ("diving di pantai", "pantai"),
-
     # --- ALAM ---
     ("wisata alam", "alam"),
     ("mau ke gunung", "alam"),
@@ -102,7 +103,6 @@ training_data = [
     ("mau di alam", "alam"),
     ("air terjun tersembunyi", "alam"),
     ("danau indah", "alam"),
-
     # --- BUDAYA ---
     ("wisata budaya", "budaya"),
     ("mau ke pura", "budaya"),
@@ -120,7 +120,6 @@ training_data = [
     ("seni tradisional", "budaya"),
     ("mau belajar budaya", "budaya"),
     ("peninggalan sejarah", "budaya"),
-
     # --- KULINER ---
     ("wisata kuliner", "kuliner"),
     ("mau belanja", "kuliner"),
@@ -137,7 +136,6 @@ training_data = [
     ("restoran bali", "kuliner"),
     ("makanan lokal", "kuliner"),
     ("pasar bali", "kuliner"),
-
     # --- HIBURAN ---
     ("wisata hiburan", "hiburan"),
     ("taman bermain", "hiburan"),
@@ -151,7 +149,6 @@ training_data = [
     ("mau yang seru", "hiburan"),
     ("tempat asik", "hiburan"),
     ("main main", "hiburan"),
-
     # --- MURAH ---
     ("wisata murah", "murah"),
     ("tempat gratis bali", "murah"),
@@ -164,7 +161,6 @@ training_data = [
     ("liburan dengan budget minim", "murah"),
     ("hemat biaya", "murah"),
     ("gratis tiket", "murah"),
-
     # --- RATING TINGGI ---
     ("tempat terbaik di bali", "terbaik"),
     ("wisata paling populer", "terbaik"),
@@ -177,7 +173,6 @@ training_data = [
     ("wisata hits bali", "terbaik"),
     ("tempat yang paling bagus", "terbaik"),
     ("favorit wisatawan", "terbaik"),
-
     # --- LOKASI ---
     ("wisata di badung", "lokasi_badung"),
     ("tempat di badung", "lokasi_badung"),
@@ -210,7 +205,6 @@ training_data = [
     ("wisata di jembrana", "lokasi_jembrana"),
     ("medewi jembrana", "lokasi_jembrana"),
     ("taman nasional bali barat jembrana", "lokasi_jembrana"),
-
     # --- SALAM / UMUM ---
     ("halo", "salam"),
     ("hai", "salam"),
@@ -232,7 +226,7 @@ training_data = [
 ]
 
 kalimat_train = [d[0] for d in training_data]
-intent_train  = [d[1] for d in training_data]
+intent_train = [d[1] for d in training_data]
 
 # Preprocessing
 kalimat_train_processed = [preprocess_text(k) for k in kalimat_train]
@@ -240,16 +234,21 @@ kalimat_train_processed = [preprocess_text(k) for k in kalimat_train]
 # =========================
 # TRAIN MODEL IMPROVED
 # =========================
-model_chatbot = Pipeline([
-    ('tfidf', TfidfVectorizer(
-        ngram_range=(1, 2),           # Unigram + Bigram
-        min_df=1,
-        max_df=0.95,
-        lowercase=True,
-        token_pattern=r'(?u)\b\w+\b'
-    )),
-    ('clf', MultinomialNB(alpha=0.1))
-])
+model_chatbot = Pipeline(
+    [
+        (
+            "tfidf",
+            TfidfVectorizer(
+                ngram_range=(1, 2),  # Unigram + Bigram
+                min_df=1,
+                max_df=0.95,
+                lowercase=True,
+                token_pattern=r"(?u)\b\w+\b",
+            ),
+        ),
+        ("clf", MultinomialNB(alpha=0.1)),
+    ]
+)
 
 # =========================
 # SPLIT DATA: TRAIN & TEST
@@ -258,7 +257,7 @@ X_train, X_test, y_train, y_test = train_test_split(
     kalimat_train_processed,
     intent_train,
     test_size=0.2,
-    random_state=42
+    random_state=42,
     # stratify dihapus karena beberapa kategori lokasi hanya punya 1-2 data
 )
 
@@ -287,6 +286,7 @@ MODEL_PATH = "model_chatbot.pkl"
 joblib.dump(model_chatbot, MODEL_PATH)
 print(f"💾 Model berhasil disimpan ke: {MODEL_PATH}")
 
+
 # =========================
 # FUNGSI PREDIKSI
 # =========================
@@ -295,7 +295,10 @@ def load_model(path=MODEL_PATH):
     if os.path.exists(path):
         return joblib.load(path)
     else:
-        raise FileNotFoundError(f"Model tidak ditemukan di {path}. Jalankan training ulang.")
+        raise FileNotFoundError(
+            f"Model tidak ditemukan di {path}. Jalankan training ulang."
+        )
+
 
 def predict_intent(user_input, confidence=False, model=None):
     """Predict intent dari input user"""
@@ -313,6 +316,7 @@ def predict_intent(user_input, confidence=False, model=None):
 
     return intent
 
+
 # =========================
 # TEST MODEL
 # =========================
@@ -325,7 +329,7 @@ if __name__ == "__main__":
         "pura mana yang terkenal",
         "halo bali guide",
         "pantai apa yang bagus",
-        "xyz random tidak jelas",   # uji confidence rendah
+        "xyz random tidak jelas",  # uji confidence rendah
     ]
 
     print("\n=== TEST PREDIKSI ===\n")

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BaliGuide — Rekomendasi Wisata Bali</title>
- 
+
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <!-- Bootstrap dari plugins AdminLTE lokal -->
@@ -14,25 +14,25 @@
     <!-- Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css"/>
-    
+
     <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 
 <body>
 <div class="app-wrapper">
- 
+
     <!-- ===================== SIDEBAR ===================== -->
     <aside class="sidebar">
         <div class="sidebar::before"></div>
- 
+
         <div class="sidebar-brand">
             <div class="brand-logo">🌴 Bali<span>Guide</span></div>
             <div class="brand-sub">Wisata Nusantara</div>
         </div>
- 
+
         <div class="sidebar-nav" style="margin-top: 16px;">
             <div class="sidebar-label">Menu</div>
- 
+
             <a class="nav-item active" id="nav-jelajahi" href="#" onclick="bukaTab('jelajahi'); return false;">
                 <i class="fas fa-compass"></i>
                 Jelajahi Wisata
@@ -49,13 +49,18 @@
                 <i class="fas fa-map-marked-alt"></i>
                 Peta Interaktif
             </a>
- 
+
             <div class="sidebar-label" style="margin-top: 16px;">Filter Kategori</div>
             <select id="kategori" class="sidebar-filter" onchange="cari()">
                 <option value="">Semua Kategori</option>
             </select>
+            <select id="sort-harga" class="sidebar-filter" onchange="cari()">
+                <option value="rating">Urutkan: Rating Tertinggi</option>
+                <option value="harga_terendah">Harga Tiket Termurah</option>
+                <option value="harga_tertinggi">Harga Tiket Termahal</option>
+            </select>
         </div>
- 
+
         <div class="sidebar-footer" id="sidebar-profile-btn" onclick="window.location.href='/profile-page'" title="Lihat Profil" style="cursor:pointer;">
             <div class="avatar" id="sidebar-avatar" style="overflow:hidden;">🧑</div>
             <div class="user-info">
@@ -67,10 +72,10 @@
             </button>
         </div>
     </aside>
- 
+
     <!-- ===================== MAIN ===================== -->
     <div class="main-content">
- 
+
         <!-- TOPBAR -->
         <div class="topbar">
             <div class="topbar-search">
@@ -88,10 +93,10 @@
                 </button>
             </div>
         </div>
- 
+
         <!-- PAGE BODY -->
         <div class="page-body">
- 
+
             <!-- HERO -->
             <div class="hero-banner">
                 <div class="hero-text">
@@ -109,7 +114,7 @@
                     </div>
                 </div>
             </div>
- 
+
             <!-- MAP SECTION -->
             <div id="map-wrapper" class="map-section">
                 <div class="map-card">
@@ -120,15 +125,15 @@
                     <div id="map"></div>
                 </div>
             </div>
- 
+
             <!-- HASIL -->
             <div id="hasil"></div>
- 
+
             <div class="section-header">
                 <h2 class="section-title" id="section-title-main">Destinasi Wisata</h2>
                 <span class="section-count" id="count-label">Memuat...</span>
             </div>
- 
+
             <div id="container"></div>
 
             <!-- PANEL FAVORIT -->
@@ -152,7 +157,7 @@
         </div><!-- /page-body -->
     </div><!-- /main-content -->
 </div><!-- /app-wrapper -->
- 
+
 <!-- MODAL TAMBAH RIWAYAT KUNJUNGAN -->
 <div id="modal-riwayat" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;">
     <div style="background:#fff;border-radius:16px;padding:32px;max-width:440px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
@@ -168,24 +173,24 @@
 </div>
 
 <!-- ===================== CHATBOT ===================== -->
-<button id="chatbot-toggle" title="Chat dengan BaliGuide AI">🤖</button>
- 
+<button id="chatbot-toggle" type="button" title="Buka asisten BaliGuide" aria-label="Buka chat"><i class="fas fa-comments"></i></button>
+
 <div id="chatbot-window">
     <div id="chatbot-header">
         <div class="bot-avatar">🏝️</div>
         <div class="header-info">
-            <div>BaliGuide AI</div>
-            <div class="status">🟢 Online · Asisten Wisata</div>
+            <div>BaliGuide</div>
+            <div class="status">Online · Asisten wisata</div>
         </div>
         <button class="chatbot-ctrl-btn" id="chatbot-minimize" title="Minimize">&#8211;</button>
         <button class="chatbot-ctrl-btn" id="chatbot-fullscreen" title="Layar Penuh">⛶</button>
         <button class="chatbot-ctrl-btn" id="chatbot-close" title="Tutup">✕</button>
     </div>
- 
+
     <div id="chatbot-messages">
         <button id="chatbot-choice-close" onclick="setChatState('closed')" title="Tutup Chatbot" style="display:none;position:absolute;top:10px;right:10px;width:28px;height:28px;border-radius:50%;background:#fff;border:1.5px solid #e0e0e0;color:#999;font-size:14px;cursor:pointer;align-items:center;justify-content:center;line-height:1;box-shadow:0 2px 8px rgba(0,0,0,0.12);z-index:20;transition:background 0.15s,color 0.15s,border-color 0.15s;" onmouseover="this.style.background='#ef5350';this.style.color='#fff';this.style.borderColor='#ef5350';" onmouseout="this.style.background='#fff';this.style.color='#999';this.style.borderColor='#e0e0e0';">✕</button>
         <div class="msg bot" id="chatbot-welcome-default" style="display:none;">
-            Halo! 👋 Saya <strong>BaliGuide</strong>, asisten wisata Bali kamu.
+            Halo, saya <strong>BaliGuide</strong>, asisten untuk rekomendasi wisata di Bali.
         </div>
     </div>
 
@@ -198,7 +203,7 @@
         <div class="chatbot-pref-head">
             <div>
                 <strong>Preferensi Wisata</strong>
-                <p>Bantu AI memahami profilmu supaya rekomendasi lebih akurat.</p>
+                <p>Lengkapi profil perjalanan agar rekomendasi lebih sesuai.</p>
             </div>
         </div>
         <div class="chatbot-pref-grid">
@@ -242,7 +247,7 @@
             </button>
         </div>
     </div>
- 
+
     <div id="chatbot-suggestions">
         <button class="suggestion-btn" onclick="kirimSuggestion(this)">🏖️ Pantai yang sepi</button>
         <button class="suggestion-btn" onclick="kirimSuggestion(this)">🏔️ Wisata alam</button>
@@ -256,19 +261,19 @@
             ⚙️ Ubah Preferensi
         </button>
     </div>
- 
+
     <div id="chatbot-input-area">
         <input type="text" id="chatbot-input" placeholder="Tanyakan wisata Bali...">
         <button id="chatbot-send" onclick="kirimPesan()"><i class="fas fa-paper-plane"></i></button>
     </div>
 </div>
- 
+
 <!-- LEAFLET JS -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
 <!-- Bootstrap JS dari plugins lokal -->
 <script src="/static/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
- 
+
 <script>
 // ============================
 // MAP & WISATA
@@ -282,7 +287,7 @@ let isOpen = false;
 let latestRecommendedNames = [];
 let rekomendasiSource = "chatbot";
 let userPreferences = null;
- 
+
 async function doLogout() {
     await fetch('/logout');
     window.location.href = '/login-page';
@@ -294,9 +299,9 @@ function splitCSVInput(value) {
         .map(item => item.trim())
         .filter(Boolean);
 }
- 
+
 document.getElementById("cancelRoute").addEventListener("click", batalkanRute);
- 
+
 document.getElementById("toggleMap").addEventListener("click", () => {
     const wrapper = document.getElementById("map-wrapper");
     const btn     = document.getElementById("toggleMap");
@@ -310,10 +315,10 @@ document.getElementById("toggleMap").addEventListener("click", () => {
     isOpen = !isOpen;
     setTimeout(() => { map.invalidateSize(); }, 420);
 });
- 
+
 const wisataIcon = L.icon({ iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png", iconSize: [28,28], iconAnchor: [14,28] });
 const userIcon   = L.icon({ iconUrl: "https://cdn-icons-png.flaticon.com/512/64/64113.png",  iconSize: [30,30], iconAnchor: [15,30], popupAnchor: [0,-30] });
- 
+
 function bukaMap() {
     const wrapper = document.getElementById("map-wrapper");
     const btn     = document.getElementById("toggleMap");
@@ -322,12 +327,12 @@ function bukaMap() {
     isOpen = true;
     setTimeout(() => { map.invalidateSize(); }, 420);
 }
- 
+
 function batalkanRute() {
     if (routingControl) { map.removeControl(routingControl); routingControl = null; }
     document.getElementById("cancelRoute").style.display = "none";
 }
- 
+
 function buatRute(lat, lng) {
     bukaMap();
     document.getElementById("cancelRoute").style.display = "flex";
@@ -371,15 +376,15 @@ function tampilkanLokasiUserSelalu() {
         timeout: 15000
     });
 }
- 
+
 function initMap() {
     map = L.map('map').setView([-8.4095, 115.1889], 10);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap contributors' }).addTo(map);
     tampilkanLokasiUserSelalu();
 }
- 
+
 function clearMarkers() { markers.forEach(m => map.removeLayer(m)); markers = []; }
- 
+
 function tampilkanMarker(data) {
     // Marker destinasi dinonaktifkan, map tetap auto-fit area hasil.
     clearMarkers();
@@ -393,7 +398,7 @@ function tampilkanMarker(data) {
     });
     if (bounds.length > 0) { map.fitBounds(bounds); }
 }
- 
+
 function loadKategori() {
     fetch("/kategori").then(r => r.json()).then(data => {
         const select = document.getElementById("kategori");
@@ -484,14 +489,16 @@ function renderDestinations(data, label = null, sectionTitle = "Destinasi Wisata
     });
     tampilkanMarker(data);
 }
- 
+
 function cari() {
     const keyword  = document.getElementById("input").value.trim();
     const kategori = document.getElementById("kategori").value;
+    const sort     = document.getElementById("sort-harga").value;
     let url = "/rekomendasi?";
     if (keyword)  url += `tempat=${encodeURIComponent(keyword)}&`;
-    if (kategori) url += `kategori=${encodeURIComponent(kategori)}`;
- 
+    if (kategori) url += `kategori=${encodeURIComponent(kategori)}&`;
+    if (sort)      url += `sort=${encodeURIComponent(sort)}`;
+
     fetch(url).then(r => r.json()).then(data => {
         document.body.classList.remove('chat-first-mode');
         if (data.message) {
@@ -502,12 +509,13 @@ function cari() {
         renderDestinations(data, null, "Destinasi Wisata");
     });
 }
- 
+
 function focusMarker(lat, lng) { bukaMap(); map.setView([parseFloat(lat), parseFloat(lng)], 15); }
- 
+
 function reset() {
     document.getElementById("input").value = "";
     document.getElementById("kategori").value = "";
+    document.getElementById("sort-harga").value = "rating";
     cari();
 }
 
@@ -527,7 +535,7 @@ async function tampilkanDestinasiRekomendasi() {
     rekomendasiSource = "chatbot";
     bukaTab('jelajahi', { noAutoLoad: true });
     document.body.classList.remove('chat-first-mode');
-    renderDestinations(hasil, `${hasil.length} destinasi rekomendasi chatbot`, "Rekomendasi dari Percakapan AI");
+    renderDestinations(hasil, `${hasil.length} destinasi dari percakapan`, "Rekomendasi dari percakapan");
 }
 
 async function loadPreferences() {
@@ -582,7 +590,7 @@ async function simpanPreferensi() {
         'bot'
     );
 }
- 
+
 // ============================
 // SUKA / FAVORIT
 // ============================
@@ -831,14 +839,14 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
     document.body.classList.add('chat-first-mode');
-    renderDestinations([], "Belum ada destinasi ditampilkan", "Rekomendasi dari Percakapan AI");
+    renderDestinations([], "Belum ada destinasi ditampilkan", "Rekomendasi dari percakapan");
     loadSuka();
     // Close modal when clicking outside
     document.getElementById('modal-riwayat').addEventListener('click', function(e) {
         if (e.target === this) tutupModalRiwayat();
     });
 });
- 
+
 // ============================
 // CHATBOT
 // ============================
@@ -846,7 +854,7 @@ let chatHistory = [];
 let chatState = 'closed';
 let currentUser = null;
 let conversationChooserShown = false;
- 
+
 const chatToggle     = document.getElementById("chatbot-toggle");
 const chatWindow     = document.getElementById("chatbot-window");
 const chatClose      = document.getElementById("chatbot-close");
@@ -857,50 +865,50 @@ const chatMsgs       = document.getElementById("chatbot-messages");
 const chatChoiceWrap = document.getElementById("chatbot-conversation-choice");
 const btnChatOld     = document.getElementById("btn-chat-old");
 const btnChatNew     = document.getElementById("btn-chat-new");
- 
+
 function setChatState(newState) {
     chatState = newState;
     chatWindow.classList.remove('open', 'minimized', 'fullscreen');
-    chatToggle.innerText = "🤖";
+    chatToggle.innerHTML = '<i class="fas fa-comments"></i>';
     chatFullscreen.title = "Layar Penuh";
     chatFullscreen.innerHTML = "⛶";
- 
+
     if (newState === 'normal') {
         chatWindow.classList.add('open');
-        chatToggle.innerText = "✕";
+        chatToggle.innerHTML = '<i class="fas fa-times"></i>';
     } else if (newState === 'minimized') {
         chatWindow.classList.add('open', 'minimized');
     } else if (newState === 'fullscreen') {
         chatWindow.classList.add('open', 'fullscreen');
-        chatToggle.innerText = "✕";
+        chatToggle.innerHTML = '<i class="fas fa-times"></i>';
         chatFullscreen.title = "Kembalikan Ukuran";
         chatFullscreen.innerHTML = "⊡";
     }
 }
- 
+
 chatToggle.addEventListener("click", () => {
     if (chatState === 'closed' || chatState === 'minimized') setChatState('normal');
     else setChatState('closed');
 });
- 
+
 chatMinimize.addEventListener("click", () => {
     if (chatState === 'minimized') setChatState('normal');
     else setChatState('minimized');
 });
- 
+
 chatFullscreen.addEventListener("click", () => {
     if (chatState === 'fullscreen') setChatState('normal');
     else setChatState('fullscreen');
 });
- 
+
 chatClose.addEventListener("click", () => setChatState('closed'));
- 
+
 document.getElementById("chatbot-header").addEventListener("click", e => {
     if (!e.target.closest('.chatbot-ctrl-btn') && chatState === 'minimized') setChatState('normal');
 });
- 
+
 chatInput.addEventListener("keypress", e => { if (e.key === "Enter") kirimPesan(); });
- 
+
 function kirimSuggestion(btn) {
     chatInput.value = btn.innerText.replace(/^[^\w\s]+\s*/, "");
     kirimPesan();
@@ -1035,22 +1043,22 @@ btnChatNew.addEventListener("click", () => {
     document.getElementById("chatbot-choice-close").style.display = "none";
     startNewConversation(false);
 });
- 
+
 // --- Markdown & bubble parser ---
 function parseMarkdown(teks) {
     return teks
         .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
         .replace(/\*(.+?)\*/g, "<em>$1</em>");
 }
- 
+
 function adaBlokWisata(teks) { return teks.includes("---"); }
- 
+
 function pecahResponBot(teks) {
     const baris = teks.split("\n");
     const bagian = [];
     let buffer = [];
     let dalamBlok = false;
- 
+
     for (const b of baris) {
         if (b.trim() === "---") {
             if (!dalamBlok && buffer.length > 0) {
@@ -1067,7 +1075,7 @@ function pecahResponBot(teks) {
             buffer.push(b);
         }
     }
- 
+
     if (buffer.length > 0) {
         const sisa = buffer.join("\n").trim();
         if (sisa) {
@@ -1089,25 +1097,25 @@ function pecahResponBot(teks) {
     }
     return bagian;
 }
- 
+
 function buatBubble(konten, role, tipe = "normal") {
     const div = document.createElement("div");
     div.className = `msg ${role}`;
     if (tipe === "tempat") div.classList.add("msg-tempat");
     if (tipe === "footer") div.classList.add("msg-footer");
- 
+
     konten.split("\n").forEach(b => {
         if (!b.trim()) return;
         const p = document.createElement("p");
         p.innerHTML = parseMarkdown(b.trim());
         div.appendChild(p);
     });
- 
+
     chatMsgs.appendChild(div);
     chatMsgs.scrollTop = chatMsgs.scrollHeight;
     return div;
 }
- 
+
 function tambahPesan(teks, role) {
     if (role === "bot" && adaBlokWisata(teks)) {
         pecahResponBot(teks).forEach(b => buatBubble(b.konten, role, b.tipe));
@@ -1115,7 +1123,7 @@ function tambahPesan(teks, role) {
         buatBubble(teks, role, "normal");
     }
 }
- 
+
 function tampilkanTyping() {
     const div = document.createElement("div");
     div.className = "typing-indicator";
@@ -1124,23 +1132,23 @@ function tampilkanTyping() {
     chatMsgs.appendChild(div);
     chatMsgs.scrollTop = chatMsgs.scrollHeight;
 }
- 
+
 function hapusTyping() {
     const t = document.getElementById("typing");
     if (t) t.remove();
 }
- 
+
 async function kirimPesan() {
     const teks = chatInput.value.trim();
     if (!teks) return;
     if (chatState === 'minimized') setChatState('normal');
- 
+
     chatInput.value = "";
     tambahPesan(teks, "user");
     chatHistory.push({ role: "user", content: teks });
     saveChatHistory().catch(() => {});
     tampilkanTyping();
- 
+
     try {
         const response = await fetch("/chatbot", {
             method: "POST",
@@ -1149,13 +1157,13 @@ async function kirimPesan() {
         });
         const data = await response.json();
         hapusTyping();
- 
+
         const balasan = data.balasan || "Maaf, terjadi kesalahan.";
         tambahPesan(balasan, "bot");
         latestRecommendedNames = parseRecommendedNames(balasan);
         chatHistory.push({ role: "assistant", content: balasan });
         saveChatHistory().catch(() => {});
- 
+
     } catch (err) {
         hapusTyping();
         tambahPesan("⚠️ Gagal terhubung ke server. Pastikan Flask sudah berjalan.", "bot");

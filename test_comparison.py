@@ -31,24 +31,26 @@ synonyms = {
 factory = StemmerFactory()
 stemmer = factory.create_stemmer()
 
+
 def preprocess_text(text):
     """Full preprocessing dengan stemming + sinonim"""
     text = text.lower()
-    
+
     # Expand sinonim
     for key, values in synonyms.items():
         for syn in values:
             if syn in text:
                 text = text.replace(syn, key)
-    
+
     # Remove special chars
-    text = re.sub(r'[^a-zA-Z0-9\s]', '', text)
-    
+    text = re.sub(r"[^a-zA-Z0-9\s]", "", text)
+
     # Stemming
     words = text.split()
     words = [stemmer.stem(word) for word in words]
-    
-    return ' '.join(words)
+
+    return " ".join(words)
+
 
 # ========================
 # TRAINING DATA (SAMA UNTUK DAYA)
@@ -70,7 +72,6 @@ training_data = [
     ("pantai romantis", "pantai"),
     ("sunset di pantai", "pantai"),
     ("pantai mana yang bagus", "pantai"),
-    
     # ALAM
     ("wisata alam", "alam"),
     ("mau ke gunung", "alam"),
@@ -86,7 +87,6 @@ training_data = [
     ("alam bali yang asri", "alam"),
     ("mau camping", "alam"),
     ("sawah terasering", "alam"),
-    
     # BUDAYA
     ("wisata budaya", "budaya"),
     ("mau ke pura", "budaya"),
@@ -98,7 +98,6 @@ training_data = [
     ("kebudayaan bali", "budaya"),
     ("mau ke ubud", "budaya"),
     ("seni budaya bali", "budaya"),
-    
     # KULINER
     ("wisata kuliner", "kuliner"),
     ("mau belanja", "kuliner"),
@@ -108,27 +107,23 @@ training_data = [
     ("belanja souvenir", "kuliner"),
     ("pasar tradisional", "kuliner"),
     ("oleh oleh bali", "kuliner"),
-    
     # HIBURAN
     ("wisata hiburan", "hiburan"),
     ("taman bermain", "hiburan"),
     ("tempat seru", "hiburan"),
     ("mau seru seruan", "hiburan"),
     ("wahana permainan", "hiburan"),
-    
     # MURAH
     ("wisata murah", "murah"),
     ("tempat gratis bali", "murah"),
     ("liburan hemat", "murah"),
     ("budget terbatas", "murah"),
     ("tiket murah", "murah"),
-    
     # TERBAIK
     ("tempat terbaik di bali", "terbaik"),
     ("wisata paling populer", "terbaik"),
     ("rekomendasi terbaik", "terbaik"),
     ("rating tertinggi", "terbaik"),
-    
     # SALAM
     ("halo", "salam"),
     ("hai", "salam"),
@@ -146,10 +141,9 @@ print("=" * 60)
 print("TRAINING MODEL LAMA (Tanpa Preprocessing)")
 print("=" * 60)
 
-model_lama = Pipeline([
-    ('tfidf', TfidfVectorizer(ngram_range=(1, 2))),
-    ('clf', MultinomialNB(alpha=0.1))
-])
+model_lama = Pipeline(
+    [("tfidf", TfidfVectorizer(ngram_range=(1, 2))), ("clf", MultinomialNB(alpha=0.1))]
+)
 model_lama.fit(kalimat_train, intent_train)
 
 # ========================
@@ -159,15 +153,15 @@ print("\nTRAINING MODEL BARU (Dengan Preprocessing)")
 
 kalimat_train_processed = [preprocess_text(k) for k in kalimat_train]
 
-model_baru = Pipeline([
-    ('tfidf', TfidfVectorizer(
-        ngram_range=(1, 2),
-        min_df=1,
-        max_df=0.95,
-        lowercase=True
-    )),
-    ('clf', MultinomialNB(alpha=0.1))
-])
+model_baru = Pipeline(
+    [
+        (
+            "tfidf",
+            TfidfVectorizer(ngram_range=(1, 2), min_df=1, max_df=0.95, lowercase=True),
+        ),
+        ("clf", MultinomialNB(alpha=0.1)),
+    ]
+)
 model_baru.fit(kalimat_train_processed, intent_train)
 print("✓ Model baru dilatih")
 
@@ -179,20 +173,17 @@ test_cases = [
     ("mau ke pantai", "pantai"),
     ("wisata kuliner", "kuliner"),
     ("tempat murah", "murah"),
-    
     # Sinonim yang BELUM ada di training data
-    ("mau ke tepi laut", "pantai"),          # sinonim: tepi laut = pantai
-    ("mau ke pesisir", "pantai"),            # sinonim: pesisir = pantai
-    ("mau menyelam", "pantai"),              # sinonim: menyelam = snorkeling
-    
+    ("mau ke tepi laut", "pantai"),  # sinonim: tepi laut = pantai
+    ("mau ke pesisir", "pantai"),  # sinonim: pesisir = pantai
+    ("mau menyelam", "pantai"),  # sinonim: menyelam = snorkeling
     # Variasi kata
-    ("kuliner bali enak", "kuliner"),        # tambah kata "enak"
-    ("liburan murah", "murah"),              # ganti: hemat -> liburan
-    ("tempat yang hemat", "murah"),          # sinonim: hemat = murah
-    
+    ("kuliner bali enak", "kuliner"),  # tambah kata "enak"
+    ("liburan murah", "murah"),  # ganti: hemat -> liburan
+    ("tempat yang hemat", "murah"),  # sinonim: hemat = murah
     # Typo/variasi
-    ("pantay bagus", "pantai"),              # typo: pantay -> pantai
-    ("mau ke pantai yg bagus", "pantai"),    # abbrev: yg -> yang
+    ("pantay bagus", "pantai"),  # typo: pantay -> pantai
+    ("mau ke pantai yg bagus", "pantai"),  # abbrev: yg -> yang
 ]
 
 # ========================
@@ -205,30 +196,45 @@ print("=" * 100)
 correct_lama = 0
 correct_baru = 0
 
-print(f"\n{'Input':<35} | {'Expected':<12} | {'Model Lama':<12} | {'Model Baru':<12} | {'Status':<15}")
+print(
+    f"\n{'Input':<35} | {'Expected':<12} | {'Model Lama':<12} | {'Model Baru':<12} | {'Status':<15}"
+)
 print("-" * 100)
 
 for test_input, expected in test_cases:
     pred_lama = model_lama.predict([test_input])[0]
     pred_baru = model_baru.predict([preprocess_text(test_input)])[0]
-    
+
     # Confidence scores
     conf_lama = max(model_lama.predict_proba([test_input])[0])
     conf_baru = max(model_baru.predict_proba([preprocess_text(test_input)])[0])
-    
-    correct_lama += (pred_lama == expected)
-    correct_baru += (pred_baru == expected)
-    
-    status = "✓ Keduanya" if (pred_lama == expected and pred_baru == expected) else \
-             "✓ Baru lebih baik" if (pred_baru == expected and pred_lama != expected) else \
-             "✓ Sama-sama benar" if (pred_lama == expected and pred_baru == expected) else \
-             "✗ Keduanya salah"
-    
-    print(f"{test_input:<35} | {expected:<12} | {pred_lama:<12} | {pred_baru:<12} | {status:<15}")
-    
+
+    correct_lama += pred_lama == expected
+    correct_baru += pred_baru == expected
+
+    status = (
+        "✓ Keduanya"
+        if (pred_lama == expected and pred_baru == expected)
+        else (
+            "✓ Baru lebih baik"
+            if (pred_baru == expected and pred_lama != expected)
+            else (
+                "✓ Sama-sama benar"
+                if (pred_lama == expected and pred_baru == expected)
+                else "✗ Keduanya salah"
+            )
+        )
+    )
+
+    print(
+        f"{test_input:<35} | {expected:<12} | {pred_lama:<12} | {pred_baru:<12} | {status:<15}"
+    )
+
     # Show confidence jika ada perbedaan
     if pred_lama != pred_baru:
-        print(f"  └─ Confidence Lama: {conf_lama:.2f} | Confidence Baru: {conf_baru:.2f}")
+        print(
+            f"  └─ Confidence Lama: {conf_lama:.2f} | Confidence Baru: {conf_baru:.2f}"
+        )
 
 # ========================
 # SUMMARY
@@ -269,7 +275,7 @@ print(f"\nPrediction: {pred}")
 print("\nProbability per intent:")
 
 # Get intent names dari training
-intents = model_baru.named_steps['clf'].classes_
+intents = model_baru.named_steps["clf"].classes_
 for intent, prob in zip(intents, proba):
     bar = "█" * int(prob * 50) + "░" * (50 - int(prob * 50))
     print(f"  {intent:<15}: {prob:.3f} [{bar}]")

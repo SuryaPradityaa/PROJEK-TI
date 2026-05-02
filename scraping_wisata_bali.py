@@ -1,3 +1,4 @@
+import os
 import requests
 import pandas as pd
 import time
@@ -8,59 +9,61 @@ from datetime import datetime
 # ─────────────────────────────────────────
 # ⚙️  KONFIGURASI — GANTI DI SINI
 # ─────────────────────────────────────────
-OPENTRIPMAP_API_KEY = "5ae2e3f221c38a28845f05b6f45a4a473c7b6facc081fefec614e002"   # Daftar di opentripmap.io
-OUTPUT_FILE         = "dataset_wisata_bali_baru.csv"
-MAX_TEMPAT          = 200    # Berapa banyak tempat yang ingin diambil
-DELAY_ANTAR_REQUEST = 0.5   # Jeda antar request (detik) — jangan terlalu cepat
+OPENTRIPMAP_API_KEY = os.environ.get(
+    "OPENTRIPMAP_API_KEY", "MASUKKAN_API_KEY_ANDA_DI_SINI"
+)  # Daftar di opentripmap.io
+OUTPUT_FILE = "dataset_wisata_bali_baru.csv"
+MAX_TEMPAT = 200  # Berapa banyak tempat yang ingin diambil
+DELAY_ANTAR_REQUEST = 0.5  # Jeda antar request (detik) — jangan terlalu cepat
 
 # ─────────────────────────────────────────
 # 🗺️  KABUPATEN DI BALI (koordinat tengah)
 # ─────────────────────────────────────────
 KABUPATEN_BALI = [
-    {"nama": "Badung",     "lat": -8.5816, "lon": 115.1671, "radius": 20000},
-    {"nama": "Gianyar",    "lat": -8.5319, "lon": 115.3268, "radius": 15000},
-    {"nama": "Denpasar",   "lat": -8.6705, "lon": 115.2126, "radius": 10000},
-    {"nama": "Tabanan",    "lat": -8.5400, "lon": 115.1200, "radius": 20000},
+    {"nama": "Badung", "lat": -8.5816, "lon": 115.1671, "radius": 20000},
+    {"nama": "Gianyar", "lat": -8.5319, "lon": 115.3268, "radius": 15000},
+    {"nama": "Denpasar", "lat": -8.6705, "lon": 115.2126, "radius": 10000},
+    {"nama": "Tabanan", "lat": -8.5400, "lon": 115.1200, "radius": 20000},
     {"nama": "Karangasem", "lat": -8.4536, "lon": 115.5800, "radius": 20000},
-    {"nama": "Buleleng",   "lat": -8.1116, "lon": 115.0892, "radius": 30000},
-    {"nama": "Bangli",     "lat": -8.4561, "lon": 115.3560, "radius": 15000},
-    {"nama": "Klungkung",  "lat": -8.5397, "lon": 115.4049, "radius": 15000},
-    {"nama": "Jembrana",   "lat": -8.3592, "lon": 114.6203, "radius": 20000},
+    {"nama": "Buleleng", "lat": -8.1116, "lon": 115.0892, "radius": 30000},
+    {"nama": "Bangli", "lat": -8.4561, "lon": 115.3560, "radius": 15000},
+    {"nama": "Klungkung", "lat": -8.5397, "lon": 115.4049, "radius": 15000},
+    {"nama": "Jembrana", "lat": -8.3592, "lon": 114.6203, "radius": 20000},
 ]
 
 # ─────────────────────────────────────────
 # 📦  MAPPING KATEGORI OpenTripMap → Sistem
 # ─────────────────────────────────────────
 KATEGORI_MAP = {
-    "beaches":              "Pantai",
-    "water":                "Pantai",
-    "natural":              "Alam",
-    "gardens":              "Alam",
-    "waterfalls":           "Alam",
-    "mountains":            "Alam",
-    "lakes":                "Alam",
-    "national_parks":       "Alam",
-    "religion":             "Budaya",
-    "historic":             "Budaya",
-    "cultural":             "Budaya",
-    "archaeology":          "Budaya",
-    "architecture":         "Budaya",
-    "museums":              "Budaya",
-    "amusements":           "Taman Hiburan",
-    "sport":                "Taman Hiburan",
-    "foods":                "Kuliner & Belanja",
-    "shops":                "Kuliner & Belanja",
-    "markets":              "Kuliner & Belanja",
-    "tourist_facilities":   "Alam",
+    "beaches": "Pantai",
+    "water": "Pantai",
+    "natural": "Alam",
+    "gardens": "Alam",
+    "waterfalls": "Alam",
+    "mountains": "Alam",
+    "lakes": "Alam",
+    "national_parks": "Alam",
+    "religion": "Budaya",
+    "historic": "Budaya",
+    "cultural": "Budaya",
+    "archaeology": "Budaya",
+    "architecture": "Budaya",
+    "museums": "Budaya",
+    "amusements": "Taman Hiburan",
+    "sport": "Taman Hiburan",
+    "foods": "Kuliner & Belanja",
+    "shops": "Kuliner & Belanja",
+    "markets": "Kuliner & Belanja",
+    "tourist_facilities": "Alam",
 }
 
 # Aktivitas default per kategori
 AKTIVITAS_DEFAULT = {
-    "Pantai":           "Bersantai, berenang, berfoto, snorkeling",
-    "Alam":             "Trekking, berfoto, menikmati alam",
-    "Budaya":           "Wisata budaya, berfoto, wisata sejarah",
-    "Taman Hiburan":    "Bermain, berfoto, hiburan keluarga",
-    "Kuliner & Belanja":"Makan, belanja oleh-oleh, wisata kuliner",
+    "Pantai": "Bersantai, berenang, berfoto, snorkeling",
+    "Alam": "Trekking, berfoto, menikmati alam",
+    "Budaya": "Wisata budaya, berfoto, wisata sejarah",
+    "Taman Hiburan": "Bermain, berfoto, hiburan keluarga",
+    "Kuliner & Belanja": "Makan, belanja oleh-oleh, wisata kuliner",
 }
 
 JAM_BUKA_DEFAULT = "08.00-17.00"
@@ -69,6 +72,7 @@ JAM_BUKA_DEFAULT = "08.00-17.00"
 # ═════════════════════════════════════════
 # BAGIAN 1: OPENTRIPMAP API
 # ═════════════════════════════════════════
+
 
 def otm_get_places(lat, lon, radius, limit=50):
     """
@@ -79,12 +83,12 @@ def otm_get_places(lat, lon, radius, limit=50):
     params = {
         "apikey": OPENTRIPMAP_API_KEY,
         "radius": radius,
-        "lon":    lon,
-        "lat":    lat,
-        "kinds":  "interesting_places",  # Semua tempat menarik
-        "rate":   "2",                   # Minimal popularitas (1=rendah, 3=tinggi)
+        "lon": lon,
+        "lat": lat,
+        "kinds": "interesting_places",  # Semua tempat menarik
+        "rate": "2",  # Minimal popularitas (1=rendah, 3=tinggi)
         "format": "json",
-        "limit":  limit,
+        "limit": limit,
     }
     try:
         resp = requests.get(url, params=params, timeout=15)
@@ -127,6 +131,7 @@ def parse_kategori(kinds_str):
 # BAGIAN 2: WIKIPEDIA API
 # ═════════════════════════════════════════
 
+
 def wiki_get_deskripsi(nama_tempat, kabupaten="Bali"):
     """
     Cari deskripsi dari Wikipedia Bahasa Indonesia.
@@ -142,11 +147,11 @@ def wiki_get_deskripsi(nama_tempat, kabupaten="Bali"):
     for query in queries:
         url = "https://id.wikipedia.org/w/api.php"
         params = {
-            "action":    "query",
-            "list":      "search",
-            "srsearch":  query,
-            "format":    "json",
-            "srlimit":   1,
+            "action": "query",
+            "list": "search",
+            "srsearch": query,
+            "format": "json",
+            "srlimit": 1,
         }
         try:
             resp = requests.get(url, params=params, timeout=10)
@@ -157,7 +162,7 @@ def wiki_get_deskripsi(nama_tempat, kabupaten="Bali"):
                 # Ambil snippet/ringkasan
                 snippet = hasil[0].get("snippet", "")
                 # Bersihkan tag HTML dari Wikipedia
-                snippet = re.sub(r'<[^>]+>', '', snippet)
+                snippet = re.sub(r"<[^>]+>", "", snippet)
                 snippet = snippet.replace("&quot;", '"').replace("&amp;", "&")
                 snippet = snippet.strip()
 
@@ -181,12 +186,12 @@ def wiki_get_intro(title):
     """Ambil paragraf pembuka artikel Wikipedia (lebih lengkap dari snippet)."""
     url = "https://id.wikipedia.org/w/api.php"
     params = {
-        "action":      "query",
-        "titles":      title,
-        "prop":        "extracts",
-        "exintro":     True,
+        "action": "query",
+        "titles": title,
+        "prop": "extracts",
+        "exintro": True,
         "explaintext": True,
-        "format":      "json",
+        "format": "json",
     }
     try:
         resp = requests.get(url, params=params, timeout=10)
@@ -196,7 +201,7 @@ def wiki_get_intro(title):
             extract = page.get("extract", "").strip()
             if extract and len(extract) > 50:
                 # Ambil 2 kalimat pertama saja
-                kalimat = re.split(r'(?<=[.!?])\s+', extract)
+                kalimat = re.split(r"(?<=[.!?])\s+", extract)
                 dua_kalimat = " ".join(kalimat[:2])
                 if len(dua_kalimat) > 30:
                     return dua_kalimat[:400]  # Maksimal 400 karakter
@@ -209,17 +214,18 @@ def wiki_get_intro(title):
 # BAGIAN 3: PROSES UTAMA
 # ═════════════════════════════════════════
 
+
 def tentukan_kabupaten(lat, lon):
     """Tentukan kabupaten berdasarkan koordinat (approx bounding box)."""
     bounds = {
-        "Jembrana":   {"lat": (-8.6, -8.1), "lon": (114.4, 115.0)},
-        "Buleleng":   {"lat": (-8.3, -7.9), "lon": (114.5, 115.7)},
-        "Tabanan":    {"lat": (-8.7, -8.3), "lon": (114.9, 115.2)},
-        "Badung":     {"lat": (-8.8, -8.5), "lon": (115.1, 115.3)},
-        "Denpasar":   {"lat": (-8.8, -8.6), "lon": (115.1, 115.3)},
-        "Gianyar":    {"lat": (-8.6, -8.3), "lon": (115.2, 115.5)},
-        "Bangli":     {"lat": (-8.5, -8.2), "lon": (115.2, 115.5)},
-        "Klungkung":  {"lat": (-8.6, -8.4), "lon": (115.3, 115.6)},
+        "Jembrana": {"lat": (-8.6, -8.1), "lon": (114.4, 115.0)},
+        "Buleleng": {"lat": (-8.3, -7.9), "lon": (114.5, 115.7)},
+        "Tabanan": {"lat": (-8.7, -8.3), "lon": (114.9, 115.2)},
+        "Badung": {"lat": (-8.8, -8.5), "lon": (115.1, 115.3)},
+        "Denpasar": {"lat": (-8.8, -8.6), "lon": (115.1, 115.3)},
+        "Gianyar": {"lat": (-8.6, -8.3), "lon": (115.2, 115.5)},
+        "Bangli": {"lat": (-8.5, -8.2), "lon": (115.2, 115.5)},
+        "Klungkung": {"lat": (-8.6, -8.4), "lon": (115.3, 115.6)},
         "Karangasem": {"lat": (-8.6, -8.2), "lon": (115.4, 115.7)},
     }
     for kab, b in bounds.items():
@@ -237,11 +243,11 @@ def hitung_rating_dari_stars(stars):
 def generate_harga(kategori):
     """Generate estimasi harga tiket berdasarkan kategori."""
     harga_map = {
-        "Pantai":           (0,     0),
-        "Alam":             (15000, 25000),
-        "Budaya":           (20000, 30000),
-        "Taman Hiburan":    (50000, 100000),
-        "Kuliner & Belanja":(0,     0),
+        "Pantai": (0, 0),
+        "Alam": (15000, 25000),
+        "Budaya": (20000, 30000),
+        "Taman Hiburan": (50000, 100000),
+        "Kuliner & Belanja": (0, 0),
     }
     return harga_map.get(kategori, (10000, 20000))
 
@@ -268,14 +274,16 @@ def proses_scraping():
     for kab_info in KABUPATEN_BALI:
         kab_nama = kab_info["nama"]
         print(f"\n📍 Mengambil data: {kab_nama}")
-        print(f"   Koordinat: ({kab_info['lat']}, {kab_info['lon']}), radius: {kab_info['radius']}m")
+        print(
+            f"   Koordinat: ({kab_info['lat']}, {kab_info['lon']}), radius: {kab_info['radius']}m"
+        )
 
         # Ambil daftar tempat dari OpenTripMap
         places = otm_get_places(
             lat=kab_info["lat"],
             lon=kab_info["lon"],
             radius=kab_info["radius"],
-            limit=30  # Ambil 30 tempat per kabupaten
+            limit=30,  # Ambil 30 tempat per kabupaten
         )
 
         if not places:
@@ -291,12 +299,12 @@ def proses_scraping():
 
             try:
                 # Ambil data dasar
-                xid      = place.get("xid", "")
-                nama     = place.get("name", "").strip()
-                lat      = place.get("point", {}).get("lat", 0)
-                lon      = place.get("point", {}).get("lon", 0)
-                kinds    = place.get("kinds", "")
-                stars    = place.get("rate", 0)
+                xid = place.get("xid", "")
+                nama = place.get("name", "").strip()
+                lat = place.get("point", {}).get("lat", 0)
+                lon = place.get("point", {}).get("lon", 0)
+                kinds = place.get("kinds", "")
+                stars = place.get("rate", 0)
 
                 # Skip jika nama kosong atau sudah ada
                 if not nama or nama in nama_sudah_ada:
@@ -334,7 +342,9 @@ def proses_scraping():
                 harga_wni, harga_wna = generate_harga(kategori)
 
                 # Aktivitas
-                aktivitas = AKTIVITAS_DEFAULT.get(kategori, "Berfoto, menikmati suasana")
+                aktivitas = AKTIVITAS_DEFAULT.get(
+                    kategori, "Berfoto, menikmati suasana"
+                )
 
                 # Jam buka
                 jam_buka = JAM_BUKA_DEFAULT
@@ -347,7 +357,7 @@ def proses_scraping():
                 if detail.get("wikipedia_extracts", {}).get("text"):
                     # OTM terkadang sudah menyertakan extract Wikipedia
                     raw = detail["wikipedia_extracts"]["text"]
-                    kalimat = re.split(r'(?<=[.!?])\s+', raw.strip())
+                    kalimat = re.split(r"(?<=[.!?])\s+", raw.strip())
                     deskripsi = " ".join(kalimat[:2])[:400]
 
                 if not deskripsi:
@@ -358,20 +368,22 @@ def proses_scraping():
                     deskripsi = f"Tempat wisata {kategori.lower()} yang menarik di {kabupaten}, Bali."
 
                 # Simpan ke list
-                semua_data.append({
-                    "id":               id_counter,
-                    "nama_tempat":      nama,
-                    "kategori":         kategori,
-                    "kabupaten":        kabupaten,
-                    "deskripsi":        deskripsi,
-                    "rating":           rating,
-                    "harga_tiket_wni":  harga_wni,
-                    "harga_tiket_wna":  harga_wna,
-                    "jam_buka":         jam_buka,
-                    "aktivitas":        aktivitas,
-                    "latitude":         round(lat, 4),
-                    "longitude":        round(lon, 4),
-                })
+                semua_data.append(
+                    {
+                        "id": id_counter,
+                        "nama_tempat": nama,
+                        "kategori": kategori,
+                        "kabupaten": kabupaten,
+                        "deskripsi": deskripsi,
+                        "rating": rating,
+                        "harga_tiket_wni": harga_wni,
+                        "harga_tiket_wna": harga_wna,
+                        "jam_buka": jam_buka,
+                        "aktivitas": aktivitas,
+                        "latitude": round(lat, 4),
+                        "longitude": round(lon, 4),
+                    }
+                )
 
                 id_counter += 1
                 print(f" ✅ ({kategori})")
@@ -408,6 +420,7 @@ def proses_scraping():
 # ═════════════════════════════════════════
 # BAGIAN 4: MERGE DENGAN DATASET LAMA
 # ═════════════════════════════════════════
+
 
 def merge_dataset(file_lama="dataset_wisata_bali.csv", file_baru=OUTPUT_FILE):
     """
@@ -451,7 +464,7 @@ def merge_dataset(file_lama="dataset_wisata_bali.csv", file_baru=OUTPUT_FILE):
 # ═════════════════════════════════════════
 
 if __name__ == "__main__":
-    print("\n🌴 Memulai scraping data wisata Bali...\n")
+    print("\nMemulai scraping data wisata Bali...\n")
 
     # LANGKAH 1: Scraping data baru
     hasil = proses_scraping()
