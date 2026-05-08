@@ -68,7 +68,7 @@ def seed_wisata_records(conn):
         )
 
 
-def get_wisata_rows(tempat="", kategori="", sort="rating"):
+def get_wisata_rows(tempat="", kategori="", kabupaten="", sort="rating"):
     conn = get_db()
     try:
         seed_wisata_records(conn)
@@ -81,11 +81,16 @@ def get_wisata_rows(tempat="", kategori="", sort="rating"):
             if kategori:
                 query += " AND kategori LIKE %s"
                 params.append(f"%{kategori}%")
+            if kabupaten:
+                query += " AND kabupaten LIKE %s"
+                params.append(f"%{kabupaten}%")
 
             if sort == "harga_terendah":
                 query += " ORDER BY (harga_tiket_wni IS NULL), harga_tiket_wni ASC"
             elif sort == "harga_tertinggi":
                 query += " ORDER BY (harga_tiket_wni IS NULL), harga_tiket_wni DESC"
+            elif sort == "kabupaten":
+                query += " ORDER BY kabupaten ASC, rating DESC"
             else:
                 query += " ORDER BY rating DESC"
 
@@ -212,7 +217,7 @@ def register():
         return jsonify({"message": "Register berhasil"})
 
     except Exception as e:
-        print("REGISTER ERROR:", e)
+        # REGISTER ERROR: {e}
         return jsonify({"message": "Terjadi error"}), 500
 
 
@@ -251,7 +256,7 @@ def login():
         return jsonify({"message": "Nama atau password salah"}), 401
 
     except Exception as e:
-        print("LOGIN ERROR:", e)
+        # LOGIN ERROR: {e}
         return jsonify({"message": "Terjadi error login"}), 500
 
 
@@ -367,9 +372,10 @@ def get_rekomendasi():
 
     tempat = request.args.get("tempat", "").strip()
     kategori = request.args.get("kategori", "").strip()
+    kabupaten = request.args.get("kabupaten", "").strip()
     sort = request.args.get("sort", "rating").strip()
 
-    hasil = get_wisata_rows(tempat, kategori, sort)
+    hasil = get_wisata_rows(tempat, kategori, kabupaten, sort)
     if not hasil:
         return jsonify({"message": "Tempat tidak ditemukan"})
 
@@ -836,8 +842,11 @@ def chatbot():
         return jsonify({"balasan": balasan})
 
     except Exception as e:
-        print("CHATBOT ERROR:", e)
-        return jsonify({"balasan": "Maaf, layanan pesan sementara tidak tersedia."}), 500
+        # CHATBOT ERROR: {e}
+        return (
+            jsonify({"balasan": "Maaf, layanan pesan sementara tidak tersedia."}),
+            500,
+        )
 
 
 @app.route("/chatbot/session", methods=["GET"])

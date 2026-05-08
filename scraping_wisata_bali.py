@@ -10,25 +10,52 @@ from datetime import datetime
 # ⚙️  KONFIGURASI — GANTI DI SINI
 # ─────────────────────────────────────────
 OPENTRIPMAP_API_KEY = os.environ.get(
-    "OPENTRIPMAP_API_KEY", "MASUKKAN_API_KEY_ANDA_DI_SINI"
+    "OPENTRIPMAP_API_KEY", "5ae2e3f221c38a28845f05b6f45a4a473c7b6facc081fefec614e002"
 )  # Daftar di opentripmap.io
 OUTPUT_FILE = "dataset_wisata_bali_baru.csv"
-MAX_TEMPAT = 200  # Berapa banyak tempat yang ingin diambil
+MAX_TEMPAT = 1000  # Berapa banyak tempat yang ingin diambil
 DELAY_ANTAR_REQUEST = 0.5  # Jeda antar request (detik) — jangan terlalu cepat
 
 # ─────────────────────────────────────────
-# 🗺️  KABUPATEN DI BALI (koordinat tengah)
+# 🗺️  KABUPATEN DI BALI (koordinat tengah dan titik tambahan untuk coverage penuh)
 # ─────────────────────────────────────────
 KABUPATEN_BALI = [
-    {"nama": "Badung", "lat": -8.5816, "lon": 115.1671, "radius": 20000},
-    {"nama": "Gianyar", "lat": -8.5319, "lon": 115.3268, "radius": 15000},
-    {"nama": "Denpasar", "lat": -8.6705, "lon": 115.2126, "radius": 10000},
-    {"nama": "Tabanan", "lat": -8.5400, "lon": 115.1200, "radius": 20000},
-    {"nama": "Karangasem", "lat": -8.4536, "lon": 115.5800, "radius": 20000},
-    {"nama": "Buleleng", "lat": -8.1116, "lon": 115.0892, "radius": 30000},
-    {"nama": "Bangli", "lat": -8.4561, "lon": 115.3560, "radius": 15000},
-    {"nama": "Klungkung", "lat": -8.5397, "lon": 115.4049, "radius": 15000},
-    {"nama": "Jembrana", "lat": -8.3592, "lon": 114.6203, "radius": 20000},
+    # Badung - Titik utama dan beberapa titik tambahan
+    {"nama": "Badung", "lat": -8.5816, "lon": 115.1671, "radius": 40000},
+    {"nama": "Badung", "lat": -8.7200, "lon": 115.1671, "radius": 30000},  # Kuta area
+    {"nama": "Badung", "lat": -8.5200, "lon": 115.2600, "radius": 30000},  # Ubud area
+    
+    # Gianyar - Titik utama dan tambahan
+    {"nama": "Gianyar", "lat": -8.5319, "lon": 115.3268, "radius": 40000},
+    {"nama": "Gianyar", "lat": -8.5200, "lon": 115.2600, "radius": 30000},  # Ubud
+    {"nama": "Gianyar", "lat": -8.4500, "lon": 115.3200, "radius": 30000},  # Tampaksiring
+    
+    # Denpasar - Titik utama
+    {"nama": "Denpasar", "lat": -8.6705, "lon": 115.2126, "radius": 30000},
+    
+    # Tabanan - Titik utama dan tambahan
+    {"nama": "Tabanan", "lat": -8.5400, "lon": 115.1200, "radius": 40000},
+    {"nama": "Tabanan", "lat": -8.4800, "lon": 115.0500, "radius": 30000},  # Marga
+    
+    # Karangasem - Titik utama dan tambahan
+    {"nama": "Karangasem", "lat": -8.4536, "lon": 115.5800, "radius": 40000},
+    {"nama": "Karangasem", "lat": -8.3500, "lon": 115.5500, "radius": 30000},  # Candidasa
+    {"nama": "Karangasem", "lat": -8.4200, "lon": 115.6100, "radius": 30000},  # Amlapura
+    
+    # Buleleng - Titik utama dan tambahan
+    {"nama": "Buleleng", "lat": -8.1116, "lon": 115.0892, "radius": 40000},
+    {"nama": "Buleleng", "lat": -8.1500, "lon": 115.0300, "radius": 30000},  # Singaraja
+    {"nama": "Buleleng", "lat": -8.0800, "lon": 115.1700, "radius": 30000},  # Lovina
+    
+    # Bangli - Titik utama
+    {"nama": "Bangli", "lat": -8.4561, "lon": 115.3560, "radius": 30000},
+    
+    # Klungkung - Titik utama
+    {"nama": "Klungkung", "lat": -8.5397, "lon": 115.4049, "radius": 30000},
+    
+    # Jembrana - Titik utama dan tambahan
+    {"nama": "Jembrana", "lat": -8.3592, "lon": 114.6203, "radius": 40000},
+    {"nama": "Jembrana", "lat": -8.3000, "lon": 114.6500, "radius": 30000},  # Negara
 ]
 
 # ─────────────────────────────────────────
@@ -236,8 +263,12 @@ def tentukan_kabupaten(lat, lon):
 
 def hitung_rating_dari_stars(stars):
     """Konversi stars OTM (0-3) ke rating (3.5-5.0)."""
-    mapping = {0: 3.5, 1: 3.8, 2: 4.2, 3: 4.6}
-    return mapping.get(int(stars) if stars else 0, 3.5)
+    try:
+        star_int = int(float(stars)) if stars else 0
+        mapping = {0: 3.5, 1: 3.8, 2: 4.2, 3: 4.6}
+        return mapping.get(star_int, 3.5)
+    except (ValueError, TypeError):
+        return 3.5  # Default rating jika stars tidak valid
 
 
 def generate_harga(kategori):
@@ -283,7 +314,7 @@ def proses_scraping():
             lat=kab_info["lat"],
             lon=kab_info["lon"],
             radius=kab_info["radius"],
-            limit=30,  # Ambil 30 tempat per kabupaten
+            limit=50,  # Ambil 50 tempat per titik koordinat
         )
 
         if not places:
@@ -448,9 +479,9 @@ def merge_dataset(file_lama="dataset_wisata_bali.csv", file_baru=OUTPUT_FILE):
         output_merge = "dataset_wisata_bali_MERGED.csv"
         df_gabung.to_csv(output_merge, index=False, encoding="utf-8-sig")
 
-        print(f"✅ Merge selesai! Total: {len(df_gabung)} baris")
-        print(f"📄 Disimpan ke: {output_merge}")
-        print(f"💡 Review dulu file ini, lalu ganti nama jadi dataset_wisata_bali.csv")
+        print(f" Merge selesai! Total: {len(df_gabung)} baris")
+        print(f" Disimpan ke: {output_merge}")
+        print(f" Review dulu file ini, lalu ganti nama jadi dataset_wisata_bali.csv")
 
         return df_gabung
 
@@ -469,11 +500,11 @@ if __name__ == "__main__":
     # LANGKAH 1: Scraping data baru
     hasil = proses_scraping()
 
-    # LANGKAH 2 (Opsional): Uncomment baris di bawah untuk merge dengan dataset lama
-    # Pastikan file dataset_wisata_bali.csv ada di folder yang sama
-    merge_dataset()
+    # LANGKAH 2: Merge dengan dataset lama (uncomment setelah review data baru)
+    if hasil is not None:
+        merge_dataset()
 
-    print("\n📝 LANGKAH SELANJUTNYA:")
+    print("\n LANGKAH SELANJUTNYA:")
     print("   1. Cek file:", OUTPUT_FILE)
     print("   2. Review data (hapus yang tidak relevan)")
     print("   3. Jalankan merge_dataset() untuk gabungkan dengan data lama")

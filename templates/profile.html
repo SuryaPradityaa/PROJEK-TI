@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="/static/css/styles.css">
 
     <style>
-        /* ===== PROFILE PAGE EXTRA STYLES ===== */
+        /*  PROFILE PAGE EXTRA STYLES */
         .profile-hero {
             background: linear-gradient(135deg, var(--hijau-tua) 0%, var(--hijau-mid) 60%, var(--hijau-muda) 100%);
             padding: 48px 36px 80px;
@@ -338,7 +338,7 @@
 <body>
 <div class="app-wrapper">
 
-    <!-- ===================== SIDEBAR ===================== -->
+    <!--SIDEBAR-->
     <aside class="sidebar">
         <div class="sidebar::before"></div>
 
@@ -380,7 +380,7 @@
         </div>
     </aside>
 
-    <!-- ===================== MAIN ===================== -->
+    <!--MAIN-->
     <div class="main-content">
 
         <!-- TOPBAR -->
@@ -541,16 +541,11 @@
 
 <script src="/static/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script>
-// ============================
 // STATE
-// ============================
 let userData = {};
 let selectedGender = null;
 let newFotoDataURL = null;
-
-// ============================
 // INIT
-// ============================
 async function init() {
     const res  = await fetch('/me');
     const data = await res.json();
@@ -600,10 +595,7 @@ async function loadStats() {
         document.getElementById('stat-riwayat').textContent  = '—';
     }
 }
-
-// ============================
 // AVATAR
-// ============================
 function setAvatar(src) {
     const el = document.getElementById('profile-avatar-el');
     el.innerHTML = `<img src="${src}" alt="Avatar">`;
@@ -630,7 +622,6 @@ function handleFotoChange(event) {
     };
     reader.readAsDataURL(file);
 }
-
 function batalFoto() {
     newFotoDataURL = null;
     document.getElementById('foto-preview-section').style.display = 'none';
@@ -643,10 +634,7 @@ function batalFoto() {
         document.getElementById('sidebar-avatar').innerHTML = '🧑';
     }
 }
-
-// ============================
 // GENDER
-// ============================
 function pilihGender(val) {
     selectedGender = val;
     ['Pria','Wanita','Lainnya'].forEach(g => {
@@ -654,10 +642,7 @@ function pilihGender(val) {
         if (pill) pill.classList.toggle('selected', g === val);
     });
 }
-
-// ============================
 // SAVE
-// ============================
 async function simpanProfil() {
     const btn = document.getElementById('btn-save');
     btn.disabled = true;
@@ -693,28 +678,19 @@ async function simpanProfil() {
         btn.innerHTML = '<i class="fas fa-save"></i> Simpan Perubahan';
     }
 }
-
-// ============================
 // LOGOUT
-// ============================
 async function doLogout() {
     await fetch('/logout');
     window.location.href = '/login-page';
 }
-
-// ============================
 // TOAST
-// ============================
 function showToast(msg) {
     const t = document.getElementById('toast');
     t.textContent = msg;
     t.style.opacity = '1';
     setTimeout(() => { t.style.opacity = '0'; }, 2800);
 }
-
-// ============================
 // BOOT
-// ============================
 document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>

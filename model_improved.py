@@ -270,21 +270,19 @@ model_chatbot.fit(X_train, y_train)
 y_pred = model_chatbot.predict(X_test)
 akurasi = accuracy_score(y_test, y_pred)
 
-print("=" * 50)
-print("     EVALUASI MODEL CHATBOT WISATA BALI")
-print("=" * 50)
-print(f"\n✅ Akurasi: {akurasi * 100:.1f}%")
-print(f"   Data Training : {len(X_train)} kalimat")
-print(f"   Data Testing  : {len(X_test)} kalimat")
-print("\n📊 Detail per Kategori:")
-print(classification_report(y_test, y_pred))
+# Evaluasi Model
+# Akurasi: {akurasi * 100:.1f}%
+# Data Training: {len(X_train)} kalimat
+# Data Testing: {len(X_test)} kalimat
+# Detail per Kategori:
+# {classification_report(y_test, y_pred)}
 
 # =========================
 # SIMPAN MODEL KE FILE
 # =========================
 MODEL_PATH = "model_chatbot.pkl"
 joblib.dump(model_chatbot, MODEL_PATH)
-print(f"💾 Model berhasil disimpan ke: {MODEL_PATH}")
+# Model berhasil disimpan ke: {MODEL_PATH}
 
 
 # =========================
@@ -332,10 +330,9 @@ if __name__ == "__main__":
         "xyz random tidak jelas",  # uji confidence rendah
     ]
 
-    print("\n=== TEST PREDIKSI ===\n")
+    # Test Prediksi
     for user_input in test_inputs:
         intent, conf = predict_intent(user_input, confidence=True)
-        status = "⚠️ Tidak dikenali" if intent == "unknown" else "✅"
-        print(f"{status} Input     : {user_input}")
-        print(f"   Intent    : {intent}")
-        print(f"   Confidence: {conf:.2f}\n")
+        # { "⚠️ Tidak dikenali" if intent == "unknown" else "✅" } Input: {user_input}
+        # Intent: {intent}
+        # Confidence: {conf:.2f}

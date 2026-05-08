@@ -21,7 +21,7 @@
 <body>
 <div class="app-wrapper">
 
-    <!-- ===================== SIDEBAR ===================== -->
+    <!-- SIDEBAR -->
     <aside class="sidebar">
         <div class="sidebar::before"></div>
 
@@ -54,10 +54,23 @@
             <select id="kategori" class="sidebar-filter" onchange="cari()">
                 <option value="">Semua Kategori</option>
             </select>
+            <select id="kabupaten" class="sidebar-filter" onchange="cari()">
+                <option value="">Semua Kabupaten</option>
+                <option value="Badung">Badung</option>
+                <option value="Bangli">Bangli</option>
+                <option value="Buleleng">Buleleng</option>
+                <option value="Gianyar">Gianyar</option>
+                <option value="Jembrana">Jembrana</option>
+                <option value="Karangasem">Karangasem</option>
+                <option value="Klungkung">Klungkung</option>
+                <option value="Tabanan">Tabanan</option>
+                <option value="Denpasar">Denpasar</option>
+            </select>
             <select id="sort-harga" class="sidebar-filter" onchange="cari()">
                 <option value="rating">Urutkan: Rating Tertinggi</option>
                 <option value="harga_terendah">Harga Tiket Termurah</option>
                 <option value="harga_tertinggi">Harga Tiket Termahal</option>
+                <option value="kabupaten">Urutkan: Berdasarkan Kabupaten</option>
             </select>
         </div>
 
@@ -73,7 +86,7 @@
         </div>
     </aside>
 
-    <!-- ===================== MAIN ===================== -->
+    <!-- MAIN  -->
     <div class="main-content">
 
         <!-- TOPBAR -->
@@ -153,11 +166,9 @@
                 </div>
                 <div id="container-riwayat"></div>
             </div>
-
-        </div><!-- /page-body -->
-    </div><!-- /main-content -->
-</div><!-- /app-wrapper -->
-
+        </div>
+    </div>
+</div>
 <!-- MODAL TAMBAH RIWAYAT KUNJUNGAN -->
 <div id="modal-riwayat" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;">
     <div style="background:#fff;border-radius:16px;padding:32px;max-width:440px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
@@ -172,7 +183,7 @@
     </div>
 </div>
 
-<!-- ===================== CHATBOT ===================== -->
+<!-- CHATBOT -->
 <button id="chatbot-toggle" type="button" title="Buka asisten BaliGuide" aria-label="Buka chat"><i class="fas fa-comments"></i></button>
 
 <div id="chatbot-window">
@@ -255,10 +266,10 @@
         <button class="suggestion-btn" onclick="kirimSuggestion(this)">👨‍👩‍👧 Untuk keluarga</button>
         <button class="suggestion-btn" onclick="tampilkanSemuaDestinasi()">🗺️ Tampilkan Semua Destinasi</button>
         <button class="suggestion-btn suggestion-btn-primary" onclick="tampilkanDestinasiRekomendasi()">
-            ✨ Tampilkan Destinasi Wisata Direkomendasikan
+            Tampilkan Destinasi Wisata Direkomendasikan
         </button>
         <button class="suggestion-btn" onclick="togglePreferencesPanel(true)">
-            ⚙️ Ubah Preferensi
+            Ubah Preferensi
         </button>
     </div>
 
@@ -273,11 +284,8 @@
 <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
 <!-- Bootstrap JS dari plugins lokal -->
 <script src="/static/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-
 <script>
-// ============================
 // MAP & WISATA
-// ============================
 let map;
 let markers = [];
 let routingControl = null;
@@ -361,7 +369,7 @@ function tampilkanLokasiUserSelalu() {
         } else {
             userMarker = L.marker([userLat, userLng], { icon: userIcon })
                 .addTo(map)
-                .bindPopup("📍 Lokasi Saya");
+                .bindPopup("Lokasi Saya");
         }
     };
 
@@ -493,10 +501,12 @@ function renderDestinations(data, label = null, sectionTitle = "Destinasi Wisata
 function cari() {
     const keyword  = document.getElementById("input").value.trim();
     const kategori = document.getElementById("kategori").value;
+    const kabupaten = document.getElementById("kabupaten").value;
     const sort     = document.getElementById("sort-harga").value;
     let url = "/rekomendasi?";
     if (keyword)  url += `tempat=${encodeURIComponent(keyword)}&`;
     if (kategori) url += `kategori=${encodeURIComponent(kategori)}&`;
+    if (kabupaten) url += `kabupaten=${encodeURIComponent(kabupaten)}&`;
     if (sort)      url += `sort=${encodeURIComponent(sort)}`;
 
     fetch(url).then(r => r.json()).then(data => {
@@ -515,6 +525,7 @@ function focusMarker(lat, lng) { bukaMap(); map.setView([parseFloat(lat), parseF
 function reset() {
     document.getElementById("input").value = "";
     document.getElementById("kategori").value = "";
+    document.getElementById("kabupaten").value = "";
     document.getElementById("sort-harga").value = "rating";
     cari();
 }
@@ -590,10 +601,7 @@ async function simpanPreferensi() {
         'bot'
     );
 }
-
-// ============================
 // SUKA / FAVORIT
-// ============================
 let sukaSet = new Set();
 let currentRiwayatItem = null;
 
@@ -635,10 +643,7 @@ async function toggleSuka(nama, btn) {
     }
     updateBadgeFavorit();
 }
-
-// ============================
 // TAB NAVIGASI
-// ============================
 function bukaTab(tab, options = {}) {
     const noAutoLoad = options.noAutoLoad || false;
     // Sembunyikan semua panel
@@ -733,9 +738,7 @@ async function hapusDariFavorit(nama, btn) {
     }
 }
 
-// ============================
 // RIWAYAT KUNJUNGAN
-// ============================
 function bukaModalRiwayat(nama, kategori, kabupaten, rating) {
     currentRiwayatItem = { nama_tempat: nama, kategori, kabupaten, rating };
     document.getElementById('modal-riwayat-nama').textContent = '📍 ' + nama;
@@ -846,10 +849,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (e.target === this) tutupModalRiwayat();
     });
 });
-
-// ============================
 // CHATBOT
-// ============================
 let chatHistory = [];
 let chatState = 'closed';
 let currentUser = null;

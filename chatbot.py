@@ -7,7 +7,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.pipeline import Pipeline
 
-from intent_training_extra import TRAINING_DATA_EXTRA
+from intent_training_multilingual import TRAINING_DATA_MULTILINGUAL
 
 # ─────────────────────────────────────────────
 # 1. LOAD DATASET
@@ -378,7 +378,7 @@ TRAINING_DATA_CORE = [
     ("remaja", "jawaban_profil"),
 ]
 
-TRAINING_DATA = TRAINING_DATA_CORE + TRAINING_DATA_EXTRA
+TRAINING_DATA = TRAINING_DATA_CORE + TRAINING_DATA_MULTILINGUAL
 
 kalimat_train = [d[0] for d in TRAINING_DATA]
 intent_train = [d[1] for d in TRAINING_DATA]
@@ -406,7 +406,8 @@ def preprocess_text(teks: str) -> str:
     for key, syns in SYNONYMS.items():
         for syn in syns:
             teks = teks.replace(syn, key)
-    return re.sub(r"[^a-zA-Z0-9\s]", " ", teks)
+    # Keep all characters including unicode, only normalize spaces
+    return re.sub(r"\s+", " ", teks).strip()
 
 
 def cek_keyword_lokasi(teks: str) -> str | None:
@@ -853,7 +854,7 @@ def build_recommendation_response(judul, hasil, preferences, suffix=""):
     for idx, row in enumerate(hasil, 1):
         lines.append(format_tempat(row, idx))
         if idx < len(hasil):
-            lines.append("\n[PLACE_SEPARATOR]\n")
+            lines.append("\n---\n")
 
     summary = []
     if preferences.get("trip_type"):
@@ -921,7 +922,7 @@ def chat_ml(pesan_user: str, riwayat: list = None, preferences: dict = None) -> 
             kategori_target=kategori,
             lokasi_target=lokasi,
             exclude_names=exclude,
-            top=4,
+            top=6,
         )
         return build_recommendation_response(
             "Rekomendasi Alternatif untuk Kamu",
@@ -1007,7 +1008,7 @@ def chat_ml(pesan_user: str, riwayat: list = None, preferences: dict = None) -> 
                 kategori_target=kategori,
                 lokasi_target=lokasi,
                 exclude_names=exclude,
-                top=5,
+                top=10,
             )
             return build_recommendation_response(
                 "Top Destinasi Terbaik untuk Kamu", hasil, merged_prefs
@@ -1050,7 +1051,7 @@ def chat_ml(pesan_user: str, riwayat: list = None, preferences: dict = None) -> 
         kategori_target=kategori,
         lokasi_target=lokasi,
         exclude_names=exclude,
-        top=4,
+        top=8,
     )
     return build_recommendation_response("Rekomendasi untuk Kamu", hasil, merged_prefs)
 
